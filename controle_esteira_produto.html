@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle da Esteira de Produto · AIC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 24px 60px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0b1220; color: #e2e8f0;
+    min-height: 100vh;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* ============ HEADER ============ */
+  .top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 24px; margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .top-left { max-width: 880px; }
+  h1 {
+    font-size: 28px; margin: 0 0 6px;
+    color: #f8fafc; font-weight: 700; letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: #94a3b8; font-size: 13px; line-height: 1.55;
+    max-width: 880px;
+  }
+  .subtitle strong { color: #cbd5e1; }
+  .update-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #111827; border: 1px solid #1e293b;
+    padding: 8px 14px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: #cbd5e1;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .update-chip-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #10b981; box-shadow: 0 0 8px #10b98188;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ============ MODE TOGGLE ============ */
+  .mode-toggle {
+    display: inline-flex; gap: 4px;
+    background: #111827; padding: 4px;
+    border-radius: 10px; border: 1px solid #1e293b;
+    margin-bottom: 22px;
+  }
+  .mode-btn {
+    background: transparent; color: #94a3b8;
+    border: none; padding: 10px 22px;
+    border-radius: 7px; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    font-family: inherit;
+    transition: all 0.18s;
+    letter-spacing: -0.005em;
+  }
+  .mode-btn:hover { color: #e2e8f0; }
+  .mode-btn.active {
+    background: #1e293b;
+    color: #f8fafc;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+
+  /* ============ LEGEND ============ */
+  .legend {
+    display: flex; gap: 22px; flex-wrap: wrap;
+    margin-bottom: 18px; padding: 14px 18px;
+    background: #111827; border-radius: 10px;
+    border: 1px solid #1e293b;
+    align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; }
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-dot.done    { background: #10b981; box-shadow: 0 0 0 2px #10b98122; }
+  .legend-dot.doing   { background: #f59e0b; box-shadow: 0 0 0 2px #f59e0b22; }
+  .legend-dot.pending { background: #ef4444; box-shadow: 0 0 0 2px #ef444422; }
+  .legend-dot.future  {
+    background: #1e293b; border: 1px dashed #475569;
+    box-shadow: none;
+  }
+  .legend-divider { width: 1px; background: #1e293b; align-self: stretch; }
+  .legend-here {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #fbbf24;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .legend-here::before {
+    content: '◆';
+    font-size: 12px;
+  }
+
+  /* ============ OVERVIEW MATRIX ============ */
+  .matrix-wrap {
+    background: #111827; border-radius: 12px;
+    border: 1px solid #1e293b;
+    padding: 22px;
+    overflow-x: auto;
+  }
+  .matrix {
+    display: grid;
+    grid-template-columns: 200px repeat(6, minmax(150px, 1fr));
+    gap: 10px;
+    min-width: 1100px;
+  }
+  .matrix-header {
+    display: contents;
+  }
+  .matrix-header > div {
+    padding: 6px 4px 12px;
+    border-bottom: 1px solid #1e293b;
+  }
+  .matrix-header-corner {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #64748b;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    align-self: end;
+  }
+  .matrix-phase-head {
+    display: flex; flex-direction: column;
+    gap: 4px;
+  }
+  .matrix-phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #fbbf24;
+    font-weight: 700; letter-spacing: 0.05em;
+  }
+  .matrix-phase-name {
+    font-size: 13px; color: #f1f5f9;
+    font-weight: 600; letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .matrix-phase-sub {
+    font-size: 11px; color: #64748b;
+    line-height: 1.3;
+    font-style: italic;
+  }
+
+  .matrix-row {
+    display: contents;
+  }
+  .matrix-row-label {
+    padding: 16px 14px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    justify-content: center; gap: 4px;
+  }
+  .matrix-row-name {
+    font-size: 15px; font-weight: 700;
+    color: #f8fafc; letter-spacing: -0.01em;
+  }
+  .matrix-row-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #64748b;
+    letter-spacing: 0.04em;
+  }
+  .matrix-row-meta strong { color: #fbbf24; font-weight: 600; }
+
+  .matrix-cell {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 92px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .matrix-cell:hover {
+    border-color: #334155;
+    transform: translateY(-1px);
+  }
+  .matrix-cell.future {
+    opacity: 0.35;
+    background: repeating-linear-gradient(
+      45deg, #0f172a, #0f172a 6px, #111827 6px, #111827 12px
+    );
+  }
+  .matrix-cell.current {
+    border-color: #fbbf24;
+    box-shadow:
+      0 0 0 1px #fbbf24,
+      0 0 24px #fbbf2422;
+  }
+  .matrix-cell.current::before {
+    content: 'VOCÊ ESTÁ AQUI';
+    position: absolute;
+    top: -9px; left: 10px;
+    background: #fbbf24;
+    color: #0b1220;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .cell-counts {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .cell-count {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .cell-count-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+  }
+  .cell-count.done    { color: #6ee7b7; }
+  .cell-count.done .cell-count-dot { background: #10b981; }
+  .cell-count.doing   { color: #fcd34d; }
+  .cell-count.doing .cell-count-dot { background: #f59e0b; }
+  .cell-count.pending { color: #fca5a5; }
+  .cell-count.pending .cell-count-dot { background: #ef4444; }
+  .cell-count-zero { opacity: 0.3; }
+
+  .cell-bar {
+    display: flex; height: 6px;
+    border-radius: 4px; overflow: hidden;
+    background: #1e293b;
+    margin-top: 8px;
+  }
+  .cell-bar-seg { height: 100%; transition: flex 0.3s; }
+  .cell-bar-seg.done    { background: #10b981; }
+  .cell-bar-seg.doing   { background: #f59e0b; }
+  .cell-bar-seg.pending { background: #ef4444; }
+
+  .cell-status-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .cell-status-label.empty { color: #475569; font-style: italic; text-transform: none; letter-spacing: 0; }
+
+  .matrix-summary {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed #1e293b;
+    display: flex; gap: 24px; flex-wrap: wrap;
+    font-size: 12px; color: #94a3b8;
+  }
+  .matrix-summary strong { color: #f1f5f9; font-weight: 600; }
+  .matrix-summary-item {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  /* ============ DETAIL MODE ============ */
+  .project-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .project-tab {
+    background: #111827;
+    border: 1px solid #1e293b;
+    color: #94a3b8;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 10px;
+    letter-spacing: -0.005em;
+  }
+  .project-tab:hover {
+    border-color: #334155; color: #e2e8f0;
+  }
+  .project-tab.active {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f8fafc;
+  }
+  .project-tab-indicator {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .project-header {
+    background: #111827;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+  }
+  .project-header-title {
+    font-size: 22px; font-weight: 700;
+    color: #f8fafc; letter-spacing: -0.015em;
+    margin: 0 0 4px;
+  }
+  .project-header-position {
+    font-size: 13px; color: #cbd5e1;
+  }
+  .project-header-position strong { color: #fbbf24; }
+  .project-header-stats {
+    display: flex; gap: 18px;
+  }
+  .stat-block {
+    text-align: right;
+  }
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700;
+    line-height: 1;
+  }
+  .stat-num.done    { color: #10b981; }
+  .stat-num.doing   { color: #f59e0b; }
+  .stat-num.pending { color: #ef4444; }
+  .stat-label {
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* Pipeline */
+  .pipeline {
+    display: flex; flex-direction: column;
+    gap: 14px;
+  }
+  .stage {
+    background: #111827;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .stage.future {
+    opacity: 0.4;
+  }
+  .stage.current {
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 1px #fbbf2433, 0 4px 24px #fbbf2411;
+  }
+  .stage-header {
+    padding: 16px 22px;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .stage-current-badge {
+    display: inline-block;
+    background: #fbbf24;
+    color: #0b1220;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .stage-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #fbbf24;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    background: #1e293b;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+  .stage-info {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .stage-name {
+    font-size: 17px; font-weight: 700;
+    color: #f1f5f9; letter-spacing: -0.01em;
+  }
+  .stage-sub {
+    font-size: 12px; color: #94a3b8;
+    font-style: italic;
+  }
+  .stage-progress {
+    display: flex; gap: 12px;
+    align-items: center;
+  }
+  .stage-progress-counts {
+    display: flex; gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .stage-progress-counts span { display: inline-flex; align-items: center; gap: 4px; }
+  .stage-progress-counts .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .stage-progress-counts .dot.done    { background: #10b981; }
+  .stage-progress-counts .dot.doing   { background: #f59e0b; }
+  .stage-progress-counts .dot.pending { background: #ef4444; }
+  .stage-progress-counts .done    { color: #6ee7b7; }
+  .stage-progress-counts .doing   { color: #fcd34d; }
+  .stage-progress-counts .pending { color: #fca5a5; }
+
+  .tasks-list {
+    padding: 14px 22px 18px;
+    display: flex; flex-direction: column;
+    gap: 8px;
+  }
+  .task {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    gap: 14px;
+    align-items: start;
+    padding: 12px 16px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    transition: border-color 0.15s;
+  }
+  .task:hover { border-color: #334155; }
+  .task-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    margin-top: 2px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .task-dot.done    {
+    background: #10b981;
+    box-shadow: 0 0 0 3px #10b98122;
+  }
+  .task-dot.doing   {
+    background: #f59e0b;
+    box-shadow: 0 0 0 3px #f59e0b22;
+    animation: spin-glow 2.5s linear infinite;
+  }
+  @keyframes spin-glow {
+    0%, 100% { box-shadow: 0 0 0 3px #f59e0b22; }
+    50% { box-shadow: 0 0 0 5px #f59e0b33; }
+  }
+  .task-dot.pending {
+    background: transparent;
+    border: 2px solid #ef4444;
+    box-sizing: border-box;
+  }
+  .task-content { min-width: 0; }
+  .task-name {
+    font-size: 14px;
+    color: #f1f5f9;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    margin-bottom: 4px;
+  }
+  .task.done .task-name { color: #cbd5e1; }
+  .task-obs {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: #1e293b66;
+    border-left: 2px solid #475569;
+    border-radius: 0 4px 4px 0;
+  }
+  .task-obs::before {
+    content: 'Obs.';
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #fbbf24;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-right: 6px;
+    text-transform: uppercase;
+  }
+  .task-status-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 1px;
+  }
+  .task-status-tag.done    { background: #10b98122; color: #6ee7b7; }
+  .task-status-tag.doing   { background: #f59e0b22; color: #fcd34d; }
+  .task-status-tag.pending { background: #ef444422; color: #fca5a5; }
+
+  /* ============ HIDDEN ============ */
+  [hidden] { display: none !important; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid #1e293b;
+    color: #64748b;
+    font-size: 11.5px;
+    line-height: 1.6;
+    max-width: 1100px;
+  }
+  footer strong { color: #94a3b8; }
+  footer code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: #111827;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #cbd5e1;
+    border: 1px solid #1e293b;
+  }
+
+  @media (max-width: 760px) {
+    body { padding: 18px 14px 40px; }
+    h1 { font-size: 22px; }
+    .matrix { min-width: 900px; }
+    .project-header { grid-template-columns: 1fr; }
+    .project-header-stats { justify-content: flex-start; }
+    .stage-header { grid-template-columns: auto 1fr; }
+    .stage-progress { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-left">
+    <h1>Controle da Esteira de Produto</h1>
+    <p class="subtitle">
+      Instrumento de gestão de portfólio da AI Constructions. Cada produto é posicionado na esteira metodológica conforme a última tarefa conclusa e as tarefas em andamento. <strong>Atualização semanal recomendada</strong>, na reunião 1:1 com o founder.
+    </p>
+  </div>
+  <div class="update-chip">
+    <span class="update-chip-dot"></span>
+    <span>Atualizado · 15 mai 2026</span>
+  </div>
+</div>
+
+<div class="mode-toggle">
+  <button class="mode-btn active" id="btn-overview">Visão geral</button>
+  <button class="mode-btn" id="btn-detail">Detalhe por projeto</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot done"></span>Concluída</div>
+  <div class="legend-item"><span class="legend-dot doing"></span>Em andamento</div>
+  <div class="legend-item"><span class="legend-dot pending"></span>Pendente</div>
+  <div class="legend-item"><span class="legend-dot future"></span>Fase não iniciada</div>
+  <div class="legend-divider"></div>
+  <div class="legend-item"><span class="legend-here">macroetapa atual</span></div>
+</div>
+
+<!-- ====================== OVERVIEW MODE ====================== -->
+<section id="overview-mode">
+  <div class="matrix-wrap">
+    <div class="matrix" id="matrix"></div>
+    <div class="matrix-summary" id="matrix-summary"></div>
+  </div>
+</section>
+
+<!-- ====================== DETAIL MODE ====================== -->
+<section id="detail-mode" hidden>
+  <div class="project-tabs" id="project-tabs"></div>
+  <div class="project-header" id="project-header"></div>
+  <div class="pipeline" id="pipeline"></div>
+</section>
+
+<footer>
+  <p><strong>Origem dos dados:</strong> base <code>MVP — Controle Esteira de Produto AIC.xlsx</code>. Para atualizar, edite a lista <code>tarefas</code> no <code>&lt;script&gt;</code> deste arquivo — uma linha por tarefa, mesmos campos da planilha. A esteira recalcula sozinha.</p>
+  <p style="margin-top: 8px;"><strong>Regra de posicionamento — macroetapa atual:</strong> última macroetapa que tem ao menos uma tarefa em andamento; se nenhuma fase tem em andamento, a última com tarefas concluídas. Macroetapas posteriores à atual aparecem translúcidas — sinalizam território ainda não pisado, não dívida.</p>
+</footer>
+
+<script>
+/* ============================================================
+   BASE DE DADOS — extraída de MVP_Controle_Esteira_de_Produto_AIC.xlsx
+   Para atualizar, edite os objetos abaixo (mesmas colunas da planilha).
+   ============================================================ */
+
+const tarefas = [
+  // === EDI ===
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente', obs: 'Validar se podemos pular essa metodologia para este projeto em específico.' },
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Concluído' },
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'JTBD — Descoberta dos jobs', status: 'Em andamento', obs: 'Feito para o Gerente de Projeto na fase 5 (Desenvolvimento do Projeto). Pendente para o Dono/Owner/CEO e passível de revisão se definirmos outro recorte de escopo.' },
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Em andamento' },
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Behavior Design — observação', status: 'Em andamento', obs: 'Iniciado de forma involuntária ao participar das reuniões da DKP.' },
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'JTBD — Priorização', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Behavior Design — definição', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
+  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
+
+  // === DIÁRIO DE OBRA ===
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'JTBD — Descoberta dos jobs', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Behavior Design — observação', status: 'Concluído', obs: 'Estou considerando o Gemba como observação do usuário. Passível de revisão.' },
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'JTBD — Priorização', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Behavior Design — definição', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Concluído' },
+  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Concluído' },
+  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Em andamento' },
+
+  // === ALMOXARIFADO ===
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'JTBD — Descoberta dos jobs', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Behavior Design — observação', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'JTBD — Priorização', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Behavior Design — definição', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Em andamento' },
+  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
+  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
+];
+
+/* ============================================================
+   MACROETAPAS — alinhadas com o HTML da metodologia
+   ============================================================ */
+const macroetapas = [
+  { id: 'discovery',   num: '01',  nome: 'Discovery',                sub: 'Entender problema, contexto e jobs' },
+  { id: 'business',    num: '02',  nome: 'Business Understanding',   sub: 'Quantificar valor, definir hipóteses' },
+  { id: 'mvp',         num: '03',  nome: 'MVP',                      sub: 'Criar dado, validar valor' },
+  { id: 'evolucao',    num: '04a', nome: 'Evolução de Produto',      sub: 'Amadurecer sem IA, acumular dado' },
+  { id: 'evolucao_ia', num: '04b', nome: 'Evolução com IA',          sub: 'Injetar inteligência sobre base consolidada' },
+  { id: 'sustentacao', num: '05',  nome: 'Sustentação',              sub: 'Operação contínua' },
+];
+
+// Mapa de nome → id de macroetapa
+const macroetapaIdByName = {
+  'Discovery': 'discovery',
+  'Business Understanding': 'business',
+  'MVP': 'mvp',
+  'Evolução de Produto': 'evolucao',
+  'Evolução com IA': 'evolucao_ia',
+  'Sustentação': 'sustentacao',
+};
+
+/* ============================================================
+   CÁLCULOS DERIVADOS
+   ============================================================ */
+
+const STATUS = { DONE: 'Concluído', DOING: 'Em andamento', PENDING: 'Pendente' };
+
+function projetos() {
+  const set = [];
+  const seen = new Set();
+  for (const t of tarefas) {
+    if (!seen.has(t.projeto)) { seen.add(t.projeto); set.push(t.projeto); }
+  }
+  return set;
+}
+
+function tarefasDoProjeto(projeto) {
+  return tarefas.filter(t => t.projeto === projeto);
+}
+
+function tarefasDaFase(projeto, macroNome) {
+  return tarefas.filter(t => t.projeto === projeto && t.macroetapa === macroNome);
+}
+
+function contagemFase(projeto, macroNome) {
+  const ts = tarefasDaFase(projeto, macroNome);
+  const done    = ts.filter(t => t.status === STATUS.DONE).length;
+  const doing   = ts.filter(t => t.status === STATUS.DOING).length;
+  const pending = ts.filter(t => t.status === STATUS.PENDING).length;
+  return { total: ts.length, done, doing, pending };
+}
+
+function macroetapaAtual(projeto) {
+  // Última fase com em andamento; se não houver, última com concluída.
+  let lastDoing = null;
+  let lastDone = null;
+  for (const m of macroetapas) {
+    const c = contagemFase(projeto, m.nome);
+    if (c.doing > 0) lastDoing = m.id;
+    if (c.done > 0)  lastDone  = m.id;
+  }
+  return lastDoing || lastDone || macroetapas[0].id;
+}
+
+function statusFase(projeto, macroId) {
+  // 'done' | 'doing' | 'pending' | 'future' | 'empty'
+  const m = macroetapas.find(x => x.id === macroId);
+  const c = contagemFase(projeto, m.nome);
+  if (c.total === 0) return 'empty'; // não há tarefas mapeadas dessa fase para esse projeto
+  if (c.done === c.total) return 'done';
+  if (c.doing > 0) return 'doing';
+  if (c.done > 0)  return 'doing'; // parcialmente concluída, sem em andamento → tratamos como "doing"
+  return 'pending'; // tudo pendente
+}
+
+function isFutura(projeto, macroId) {
+  // É futura se está depois da macroetapa atual.
+  const atual = macroetapaAtual(projeto);
+  const idxAtual = macroetapas.findIndex(m => m.id === atual);
+  const idxFase  = macroetapas.findIndex(m => m.id === macroId);
+  return idxFase > idxAtual;
+}
+
+function contagemTotalProjeto(projeto) {
+  const ts = tarefasDoProjeto(projeto);
+  return {
+    total:   ts.length,
+    done:    ts.filter(t => t.status === STATUS.DONE).length,
+    doing:   ts.filter(t => t.status === STATUS.DOING).length,
+    pending: ts.filter(t => t.status === STATUS.PENDING).length,
+  };
+}
+
+/* ============================================================
+   RENDER — VISÃO GERAL (MATRIZ)
+   ============================================================ */
+
+function renderMatrix() {
+  const root = document.getElementById('matrix');
+  root.innerHTML = '';
+
+  // Header row
+  const header = document.createElement('div');
+  header.className = 'matrix-header';
+  header.innerHTML = `<div class="matrix-header-corner">PROJETO ↓ ETAPA →</div>` +
+    macroetapas.map(m => `
+      <div class="matrix-phase-head">
+        <div class="matrix-phase-num">${m.num}</div>
+        <div class="matrix-phase-name">${m.nome}</div>
+        <div class="matrix-phase-sub">${m.sub}</div>
+      </div>
+    `).join('');
+  root.appendChild(header);
+
+  // Project rows
+  for (const projeto of projetos()) {
+    const atual = macroetapaAtual(projeto);
+    const macroAtualNome = macroetapas.find(m => m.id === atual).nome;
+    const total = contagemTotalProjeto(projeto);
+
+    const row = document.createElement('div');
+    row.className = 'matrix-row';
+
+    row.innerHTML = `
+      <div class="matrix-row-label">
+        <div class="matrix-row-name">${projeto}</div>
+        <div class="matrix-row-meta">
+          ${total.done}/${total.total} concluídas · em <strong>${macroAtualNome}</strong>
+        </div>
+      </div>
+      ${macroetapas.map(m => renderCell(projeto, m)).join('')}
+    `;
+    root.appendChild(row);
+  }
+
+  // Summary footer
+  const sum = document.getElementById('matrix-summary');
+  sum.innerHTML = projetos().map(p => {
+    const c = contagemTotalProjeto(p);
+    return `<span class="matrix-summary-item">
+      <strong>${p}:</strong>
+      <span style="color:#6ee7b7;">${c.done} ✓</span> ·
+      <span style="color:#fcd34d;">${c.doing} ◐</span> ·
+      <span style="color:#fca5a5;">${c.pending} ○</span>
+      <span style="color:#475569;">de ${c.total}</span>
+    </span>`;
+  }).join('');
+}
+
+function renderCell(projeto, m) {
+  const c = contagemFase(projeto, m.nome);
+  const atual = macroetapaAtual(projeto);
+  const futura = isFutura(projeto, m.id);
+  const isCurrent = m.id === atual;
+
+  let classes = 'matrix-cell';
+  if (futura) classes += ' future';
+  if (isCurrent) classes += ' current';
+
+  if (c.total === 0) {
+    return `<div class="${classes}" title="${m.nome}: sem tarefas mapeadas">
+      <div class="cell-status-label empty">sem tarefas mapeadas</div>
+    </div>`;
+  }
+
+  // Barra proporcional
+  const done    = c.done;
+  const doing   = c.doing;
+  const pending = c.pending;
+
+  const segs = [];
+  if (done    > 0) segs.push(`<div class="cell-bar-seg done"    style="flex:${done};"></div>`);
+  if (doing   > 0) segs.push(`<div class="cell-bar-seg doing"   style="flex:${doing};"></div>`);
+  if (pending > 0) segs.push(`<div class="cell-bar-seg pending" style="flex:${pending};"></div>`);
+
+  let label;
+  if (futura)              label = 'fase não iniciada';
+  else if (done === c.total) label = 'fase concluída';
+  else if (doing > 0)        label = `${done}/${c.total} concluídas · ${doing} em andamento`;
+  else if (done > 0)         label = `${done}/${c.total} concluídas`;
+  else                       label = `${c.total} pendentes`;
+
+  return `<div class="${classes}" data-projeto="${projeto}" data-macro="${m.id}" title="${projeto} · ${m.nome}">
+    <div class="cell-counts">
+      <span class="cell-count done${done===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${done}</span>
+      <span class="cell-count doing${doing===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${doing}</span>
+      <span class="cell-count pending${pending===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${pending}</span>
+    </div>
+    <div>
+      <div class="cell-bar">${segs.join('')}</div>
+      <div class="cell-status-label" style="margin-top:6px;">${label}</div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER — DETALHE POR PROJETO
+   ============================================================ */
+
+let projetoSelecionado = null;
+
+function renderProjectTabs() {
+  const root = document.getElementById('project-tabs');
+  const lista = projetos();
+  if (!projetoSelecionado) projetoSelecionado = lista[0];
+
+  root.innerHTML = lista.map(p => {
+    const atual = macroetapaAtual(p);
+    const sf = statusFase(p, atual);
+    const color = sf === 'done' ? '#10b981' : sf === 'doing' ? '#f59e0b' : '#ef4444';
+    return `<button class="project-tab ${p === projetoSelecionado ? 'active' : ''}" data-projeto="${p}">
+      <span class="project-tab-indicator" style="background:${color};"></span>
+      ${p}
+    </button>`;
+  }).join('');
+
+  root.querySelectorAll('.project-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      projetoSelecionado = btn.dataset.projeto;
+      renderDetail();
+    });
+  });
+}
+
+function renderProjectHeader() {
+  const p = projetoSelecionado;
+  const atual = macroetapaAtual(p);
+  const macroAtual = macroetapas.find(m => m.id === atual);
+  const c = contagemTotalProjeto(p);
+
+  document.getElementById('project-header').innerHTML = `
+    <div>
+      <h2 class="project-header-title">${p}</h2>
+      <div class="project-header-position">
+        Posicionado em <strong>${macroAtual.nome}</strong> · ${macroAtual.sub}
+      </div>
+    </div>
+    <div class="project-header-stats">
+      <div class="stat-block">
+        <div class="stat-num done">${c.done}</div>
+        <div class="stat-label">Concluídas</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num doing">${c.doing}</div>
+        <div class="stat-label">Em andamento</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num pending">${c.pending}</div>
+        <div class="stat-label">Pendentes</div>
+      </div>
+    </div>
+  `;
+}
+
+function statusKey(s) {
+  if (s === STATUS.DONE) return 'done';
+  if (s === STATUS.DOING) return 'doing';
+  return 'pending';
+}
+
+function renderPipeline() {
+  const p = projetoSelecionado;
+  const root = document.getElementById('pipeline');
+  const atual = macroetapaAtual(p);
+
+  root.innerHTML = macroetapas.map(m => {
+    const c = contagemFase(p, m.nome);
+    const futura = isFutura(p, m.id);
+    const isCurrent = m.id === atual;
+
+    let classes = 'stage';
+    if (futura) classes += ' future';
+    if (isCurrent) classes += ' current';
+
+    const tasks = tarefasDaFase(p, m.nome);
+
+    return `<div class="${classes}">
+      <div class="stage-header">
+        <div class="stage-num">${m.num}</div>
+        <div class="stage-info">
+          <div class="stage-name">${m.nome}${isCurrent ? '<span class="stage-current-badge">macroetapa atual</span>' : ''}</div>
+          <div class="stage-sub">${m.sub}</div>
+        </div>
+        <div class="stage-progress">
+          <div class="stage-progress-counts">
+            <span class="done"><span class="dot done"></span>${c.done}</span>
+            <span class="doing"><span class="dot doing"></span>${c.doing}</span>
+            <span class="pending"><span class="dot pending"></span>${c.pending}</span>
+          </div>
+        </div>
+      </div>
+      <div class="tasks-list">
+        ${tasks.length === 0
+          ? `<div style="color:#475569; font-size:12px; font-style:italic; padding:8px 4px;">Tarefas desta fase ainda não foram mapeadas na base.</div>`
+          : tasks.map(t => {
+              const k = statusKey(t.status);
+              return `<div class="task ${k}">
+                <div class="task-dot ${k}"></div>
+                <div class="task-content">
+                  <div class="task-name">${t.metodologia}</div>
+                  ${t.obs ? `<div class="task-obs">${t.obs}</div>` : ''}
+                </div>
+                <div class="task-status-tag ${k}">${t.status}</div>
+              </div>`;
+            }).join('')
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDetail() {
+  renderProjectTabs();
+  renderProjectHeader();
+  renderPipeline();
+}
+
+/* ============================================================
+   MODE TOGGLE
+   ============================================================ */
+
+const btnOverview = document.getElementById('btn-overview');
+const btnDetail = document.getElementById('btn-detail');
+const overviewMode = document.getElementById('overview-mode');
+const detailMode = document.getElementById('detail-mode');
+
+btnOverview.addEventListener('click', () => {
+  btnOverview.classList.add('active');
+  btnDetail.classList.remove('active');
+  overviewMode.hidden = false;
+  detailMode.hidden = true;
+});
+btnDetail.addEventListener('click', () => {
+  btnDetail.classList.add('active');
+  btnOverview.classList.remove('active');
+  detailMode.hidden = false;
+  overviewMode.hidden = true;
+  renderDetail();
+});
+
+// Click numa célula da matriz abre o detalhe daquele projeto
+document.addEventListener('click', (e) => {
+  const cell = e.target.closest('.matrix-cell[data-projeto]');
+  if (cell) {
+    projetoSelecionado = cell.dataset.projeto;
+    btnDetail.click();
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderMatrix();
+</script>
+
+</body>
+</html>
