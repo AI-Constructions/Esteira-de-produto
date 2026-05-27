@@ -3,16 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle da Esteira de Produto · AIC</title>
+<title>Esteira de Produto · AIC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
+
+  /* ============================================================
+     SISTEMA DE TEMAS — variáveis para dark (default) e light.
+     Toggle via [data-theme="light"] no <html>. Persistido em
+     localStorage. Impressão força light.
+     ============================================================ */
+  :root {
+    /* DARK (padrão) */
+    --c-bg: #0b1220;
+    --c-surface: #111827;
+    --c-surface-2: #0f172a;
+    --c-border: #1e293b;
+    --c-border-2: #334155;
+    --c-border-3: #475569;
+    --c-text-faint: #64748b;
+    --c-text-muted: #94a3b8;
+    --c-text-soft: #cbd5e1;
+    --c-text: #e2e8f0;
+    --c-text-strong: #f1f5f9;
+    --c-text-strongest: #f8fafc;
+    --c-modal-backdrop: rgba(0, 0, 0, 0.75);
+    --c-shadow: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+  [data-theme="light"] {
+    --c-bg: #f1f5f9;
+    --c-surface: #ffffff;
+    --c-surface-2: #f8fafc;
+    --c-border: #e2e8f0;
+    --c-border-2: #cbd5e1;
+    --c-border-3: #94a3b8;
+    --c-text-faint: #94a3b8;
+    --c-text-muted: #64748b;
+    --c-text-soft: #475569;
+    --c-text: #334155;
+    --c-text-strong: #1e293b;
+    --c-text-strongest: #0f172a;
+    --c-modal-backdrop: rgba(15, 23, 42, 0.45);
+    --c-shadow: rgba(0, 0, 0, 0.1);
+    color-scheme: light;
+  }
+
+
   body {
     margin: 0; padding: 28px 24px 60px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0b1220; color: #e2e8f0;
+    background: var(--c-bg); color: var(--c-text);
     min-height: 100vh;
     font-feature-settings: 'cv11', 'ss01';
   }
@@ -25,19 +68,19 @@
   .top-left { max-width: 880px; }
   h1 {
     font-size: 28px; margin: 0 0 6px;
-    color: #f8fafc; font-weight: 700; letter-spacing: -0.02em;
+    color: var(--c-text-strongest); font-weight: 700; letter-spacing: -0.02em;
   }
   .subtitle {
-    color: #94a3b8; font-size: 13px; line-height: 1.55;
+    color: var(--c-text-muted); font-size: 13px; line-height: 1.55;
     max-width: 880px;
   }
-  .subtitle strong { color: #cbd5e1; }
+  .subtitle strong { color: var(--c-text-soft); }
   .update-chip {
     display: inline-flex; align-items: center; gap: 8px;
-    background: #111827; border: 1px solid #1e293b;
+    background: var(--c-surface); border: 1px solid var(--c-border);
     padding: 8px 14px; border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: #cbd5e1;
+    font-size: 11px; color: var(--c-text-soft);
     letter-spacing: 0.04em;
     white-space: nowrap;
   }
@@ -51,15 +94,112 @@
     50% { opacity: 0.4; }
   }
 
+  /* ============ ACTION BUTTONS (topbar) ============ */
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    color: var(--c-text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: -0.005em;
+  }
+  .action-btn:hover {
+    border-color: var(--c-border-2);
+    background: var(--c-surface-2);
+  }
+  .action-btn.icon-only {
+    padding: 8px 10px;
+  }
+  .action-btn-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+  .action-btn-label {
+    line-height: 1;
+  }
+
+  .export-wrap {
+    position: relative;
+  }
+  .export-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 220px;
+    box-shadow: 0 10px 32px var(--c-shadow);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .export-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    color: var(--c-text);
+    font-family: inherit;
+    transition: background 0.12s;
+  }
+  .export-menu-item:hover {
+    background: var(--c-surface-2);
+  }
+  .export-menu-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--c-text-faint);
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .export-menu-item strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-text-strong);
+    line-height: 1.2;
+  }
+  .export-menu-item small {
+    display: block;
+    font-size: 11px;
+    color: var(--c-text-muted);
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+
   /* ============ MODE TOGGLE ============ */
   .mode-toggle {
     display: inline-flex; gap: 4px;
-    background: #111827; padding: 4px;
-    border-radius: 10px; border: 1px solid #1e293b;
+    background: var(--c-surface); padding: 4px;
+    border-radius: 10px; border: 1px solid var(--c-border);
     margin-bottom: 22px;
   }
   .mode-btn {
-    background: transparent; color: #94a3b8;
+    background: transparent; color: var(--c-text-muted);
     border: none; padding: 10px 22px;
     border-radius: 7px; cursor: pointer;
     font-size: 13px; font-weight: 600;
@@ -67,10 +207,10 @@
     transition: all 0.18s;
     letter-spacing: -0.005em;
   }
-  .mode-btn:hover { color: #e2e8f0; }
+  .mode-btn:hover { color: var(--c-text); }
   .mode-btn.active {
-    background: #1e293b;
-    color: #f8fafc;
+    background: var(--c-border);
+    color: var(--c-text-strongest);
     box-shadow: 0 1px 3px rgba(0,0,0,0.4);
   }
 
@@ -78,23 +218,24 @@
   .legend {
     display: flex; gap: 22px; flex-wrap: wrap;
     margin-bottom: 18px; padding: 14px 18px;
-    background: #111827; border-radius: 10px;
-    border: 1px solid #1e293b;
+    background: var(--c-surface); border-radius: 10px;
+    border: 1px solid var(--c-border);
     align-items: center;
   }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--c-text-soft); }
   .legend-dot {
     width: 12px; height: 12px; border-radius: 50%;
     flex-shrink: 0;
   }
   .legend-dot.done    { background: #10b981; box-shadow: 0 0 0 2px #10b98122; }
   .legend-dot.doing   { background: #f59e0b; box-shadow: 0 0 0 2px #f59e0b22; }
+  .legend-dot.partial { background: #3b82f6; box-shadow: 0 0 0 2px #3b82f622; }
   .legend-dot.pending { background: #ef4444; box-shadow: 0 0 0 2px #ef444422; }
   .legend-dot.future  {
-    background: #1e293b; border: 1px dashed #475569;
+    background: var(--c-border); border: 1px dashed var(--c-border-3);
     box-shadow: none;
   }
-  .legend-divider { width: 1px; background: #1e293b; align-self: stretch; }
+  .legend-divider { width: 1px; background: var(--c-border); align-self: stretch; }
   .legend-here {
     display: inline-flex; align-items: center; gap: 6px;
     font-family: 'JetBrains Mono', monospace;
@@ -110,8 +251,8 @@
 
   /* ============ OVERVIEW MATRIX ============ */
   .matrix-wrap {
-    background: #111827; border-radius: 12px;
-    border: 1px solid #1e293b;
+    background: var(--c-surface); border-radius: 12px;
+    border: 1px solid var(--c-border);
     padding: 22px;
     overflow-x: auto;
   }
@@ -126,12 +267,12 @@
   }
   .matrix-header > div {
     padding: 6px 4px 12px;
-    border-bottom: 1px solid #1e293b;
+    border-bottom: 1px solid var(--c-border);
   }
   .matrix-header-corner {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    color: #64748b;
+    color: var(--c-text-faint);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     align-self: end;
@@ -146,12 +287,12 @@
     font-weight: 700; letter-spacing: 0.05em;
   }
   .matrix-phase-name {
-    font-size: 13px; color: #f1f5f9;
+    font-size: 13px; color: var(--c-text-strong);
     font-weight: 600; letter-spacing: -0.01em;
     line-height: 1.25;
   }
   .matrix-phase-sub {
-    font-size: 11px; color: #64748b;
+    font-size: 11px; color: var(--c-text-faint);
     line-height: 1.3;
     font-style: italic;
   }
@@ -161,26 +302,26 @@
   }
   .matrix-row-label {
     padding: 16px 14px;
-    background: #0f172a;
-    border: 1px solid #1e293b;
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
     border-radius: 8px;
     display: flex; flex-direction: column;
     justify-content: center; gap: 4px;
   }
   .matrix-row-name {
     font-size: 15px; font-weight: 700;
-    color: #f8fafc; letter-spacing: -0.01em;
+    color: var(--c-text-strongest); letter-spacing: -0.01em;
   }
   .matrix-row-meta {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: #64748b;
+    font-size: 10px; color: var(--c-text-faint);
     letter-spacing: 0.04em;
   }
   .matrix-row-meta strong { color: #fbbf24; font-weight: 600; }
 
   .matrix-cell {
-    background: #0f172a;
-    border: 1px solid #1e293b;
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
     border-radius: 8px;
     padding: 12px;
     min-height: 92px;
@@ -191,14 +332,51 @@
     transition: all 0.18s;
   }
   .matrix-cell:hover {
-    border-color: #334155;
+    border-color: var(--c-border-2);
     transform: translateY(-1px);
   }
   .matrix-cell.future {
     opacity: 0.35;
     background: repeating-linear-gradient(
-      45deg, #0f172a, #0f172a 6px, #111827 6px, #111827 12px
+      45deg, var(--c-surface-2), var(--c-surface-2) 6px, var(--c-surface) 6px, var(--c-surface) 12px
     );
+  }
+  /* No tema light a hachura usa tonalidades mais perceptíveis */
+  [data-theme="light"] .matrix-cell.future {
+    opacity: 0.55;
+    background: repeating-linear-gradient(
+      45deg, #f8fafc, #f8fafc 6px, #e2e8f0 6px, #e2e8f0 12px
+    );
+  }
+  /* Projeto em incorporação: opacidade um pouco maior, sem hachura,
+     para diferenciar de "fase futura" comum (que é dívida não pisada de um projeto ativo) */
+  .matrix-row.incorporando .matrix-cell.future {
+    opacity: 0.45;
+    background: var(--c-surface-2);
+    border-style: dashed;
+    border-color: var(--c-border-2);
+  }
+  .matrix-row.incorporando .matrix-row-label {
+    border-style: dashed;
+    border-color: var(--c-border-2);
+  }
+  .matrix-row.incorporando .matrix-row-name {
+    color: var(--c-text-soft);
+  }
+
+  .incorporando-tag {
+    display: inline-block;
+    background: var(--c-border);
+    color: var(--c-text-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px dashed var(--c-border-3);
+    vertical-align: middle;
+    margin-right: 4px;
   }
   .matrix-cell.current {
     border-color: #fbbf24;
@@ -211,7 +389,7 @@
     position: absolute;
     top: -9px; left: 10px;
     background: #fbbf24;
-    color: #0b1220;
+    color: var(--c-bg);
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
     font-weight: 700;
@@ -236,6 +414,8 @@
   .cell-count.done .cell-count-dot { background: #10b981; }
   .cell-count.doing   { color: #fcd34d; }
   .cell-count.doing .cell-count-dot { background: #f59e0b; }
+  .cell-count.partial { color: #93c5fd; }
+  .cell-count.partial .cell-count-dot { background: #3b82f6; }
   .cell-count.pending { color: #fca5a5; }
   .cell-count.pending .cell-count-dot { background: #ef4444; }
   .cell-count-zero { opacity: 0.3; }
@@ -243,34 +423,58 @@
   .cell-bar {
     display: flex; height: 6px;
     border-radius: 4px; overflow: hidden;
-    background: #1e293b;
+    background: var(--c-border);
     margin-top: 8px;
   }
   .cell-bar-seg { height: 100%; transition: flex 0.3s; }
   .cell-bar-seg.done    { background: #10b981; }
   .cell-bar-seg.doing   { background: #f59e0b; }
+  .cell-bar-seg.partial { background: #3b82f6; }
   .cell-bar-seg.pending { background: #ef4444; }
 
   .cell-status-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 9.5px;
-    color: #64748b;
+    color: var(--c-text-faint);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     font-weight: 600;
   }
-  .cell-status-label.empty { color: #475569; font-style: italic; text-transform: none; letter-spacing: 0; }
+  .cell-status-label.empty { color: var(--c-border-3); font-style: italic; text-transform: none; letter-spacing: 0; }
 
   .matrix-summary {
     margin-top: 18px;
     padding-top: 18px;
-    border-top: 1px dashed #1e293b;
+    border-top: 1px dashed var(--c-border);
     display: flex; gap: 24px; flex-wrap: wrap;
-    font-size: 12px; color: #94a3b8;
+    font-size: 12px; color: var(--c-text-muted);
   }
-  .matrix-summary strong { color: #f1f5f9; font-weight: 600; }
+  .matrix-summary strong { color: var(--c-text-strong); font-weight: 600; }
   .matrix-summary-item {
     display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  /* Separador entre projetos pré e pós criação da metodologia.
+     Discreto, mas legível — não deve competir com o conteúdo principal. */
+  .matrix-separator {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--c-text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .matrix-separator::before,
+  .matrix-separator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--c-border-2), transparent);
   }
 
   /* ============ DETAIL MODE ============ */
@@ -279,9 +483,9 @@
     margin-bottom: 22px;
   }
   .project-tab {
-    background: #111827;
-    border: 1px solid #1e293b;
-    color: #94a3b8;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    color: var(--c-text-muted);
     padding: 12px 20px;
     border-radius: 10px;
     font-family: inherit;
@@ -292,12 +496,12 @@
     letter-spacing: -0.005em;
   }
   .project-tab:hover {
-    border-color: #334155; color: #e2e8f0;
+    border-color: var(--c-border-2); color: var(--c-text);
   }
   .project-tab.active {
-    background: #1e293b;
-    border-color: #475569;
-    color: #f8fafc;
+    background: var(--c-border);
+    border-color: var(--c-border-3);
+    color: var(--c-text-strongest);
   }
   .project-tab-indicator {
     width: 10px; height: 10px;
@@ -305,8 +509,8 @@
   }
 
   .project-header {
-    background: #111827;
-    border: 1px solid #1e293b;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
     border-radius: 12px;
     padding: 22px 24px;
     margin-bottom: 18px;
@@ -317,11 +521,11 @@
   }
   .project-header-title {
     font-size: 22px; font-weight: 700;
-    color: #f8fafc; letter-spacing: -0.015em;
+    color: var(--c-text-strongest); letter-spacing: -0.015em;
     margin: 0 0 4px;
   }
   .project-header-position {
-    font-size: 13px; color: #cbd5e1;
+    font-size: 13px; color: var(--c-text-soft);
   }
   .project-header-position strong { color: #fbbf24; }
   .project-header-stats {
@@ -337,10 +541,11 @@
   }
   .stat-num.done    { color: #10b981; }
   .stat-num.doing   { color: #f59e0b; }
+  .stat-num.partial { color: #3b82f6; }
   .stat-num.pending { color: #ef4444; }
   .stat-label {
     font-size: 10px;
-    color: #64748b;
+    color: var(--c-text-faint);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-weight: 600;
@@ -353,8 +558,8 @@
     gap: 14px;
   }
   .stage {
-    background: #111827;
-    border: 1px solid #1e293b;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
     border-radius: 12px;
     overflow: hidden;
     transition: all 0.2s;
@@ -368,8 +573,8 @@
   }
   .stage-header {
     padding: 16px 22px;
-    background: #0f172a;
-    border-bottom: 1px solid #1e293b;
+    background: var(--c-surface-2);
+    border-bottom: 1px solid var(--c-border);
     display: grid;
     grid-template-columns: auto 1fr auto;
     gap: 16px;
@@ -378,7 +583,7 @@
   .stage-current-badge {
     display: inline-block;
     background: #fbbf24;
-    color: #0b1220;
+    color: var(--c-bg);
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
     font-weight: 700;
@@ -394,7 +599,7 @@
     color: #fbbf24;
     font-weight: 700;
     letter-spacing: 0.05em;
-    background: #1e293b;
+    background: var(--c-border);
     padding: 6px 10px;
     border-radius: 6px;
   }
@@ -403,10 +608,10 @@
   }
   .stage-name {
     font-size: 17px; font-weight: 700;
-    color: #f1f5f9; letter-spacing: -0.01em;
+    color: var(--c-text-strong); letter-spacing: -0.01em;
   }
   .stage-sub {
-    font-size: 12px; color: #94a3b8;
+    font-size: 12px; color: var(--c-text-muted);
     font-style: italic;
   }
   .stage-progress {
@@ -425,9 +630,11 @@
   }
   .stage-progress-counts .dot.done    { background: #10b981; }
   .stage-progress-counts .dot.doing   { background: #f59e0b; }
+  .stage-progress-counts .dot.partial { background: #3b82f6; }
   .stage-progress-counts .dot.pending { background: #ef4444; }
   .stage-progress-counts .done    { color: #6ee7b7; }
   .stage-progress-counts .doing   { color: #fcd34d; }
+  .stage-progress-counts .partial { color: #93c5fd; }
   .stage-progress-counts .pending { color: #fca5a5; }
 
   .tasks-list {
@@ -441,12 +648,12 @@
     gap: 14px;
     align-items: start;
     padding: 12px 16px;
-    background: #0f172a;
-    border: 1px solid #1e293b;
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
     border-radius: 8px;
     transition: border-color 0.15s;
   }
-  .task:hover { border-color: #334155; }
+  .task:hover { border-color: var(--c-border-2); }
   .task-dot {
     width: 14px; height: 14px;
     border-radius: 50%;
@@ -467,6 +674,11 @@
     0%, 100% { box-shadow: 0 0 0 3px #f59e0b22; }
     50% { box-shadow: 0 0 0 5px #f59e0b33; }
   }
+  .task-dot.partial {
+    background: #3b82f6;
+    box-shadow: 0 0 0 3px #3b82f622;
+    background-image: linear-gradient(135deg, #3b82f6 50%, #1e3a8a 50%);
+  }
   .task-dot.pending {
     background: transparent;
     border: 2px solid #ef4444;
@@ -475,20 +687,20 @@
   .task-content { min-width: 0; }
   .task-name {
     font-size: 14px;
-    color: #f1f5f9;
+    color: var(--c-text-strong);
     font-weight: 500;
     letter-spacing: -0.005em;
     margin-bottom: 4px;
   }
-  .task.done .task-name { color: #cbd5e1; }
+  .task.done .task-name { color: var(--c-text-soft); }
   .task-obs {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--c-text-muted);
     line-height: 1.5;
     margin-top: 6px;
     padding: 8px 10px;
     background: #1e293b66;
-    border-left: 2px solid #475569;
+    border-left: 2px solid var(--c-border-3);
     border-radius: 0 4px 4px 0;
   }
   .task-obs::before {
@@ -516,6 +728,7 @@
   }
   .task-status-tag.done    { background: #10b98122; color: #6ee7b7; }
   .task-status-tag.doing   { background: #f59e0b22; color: #fcd34d; }
+  .task-status-tag.partial { background: #3b82f622; color: #93c5fd; }
   .task-status-tag.pending { background: #ef444422; color: #fca5a5; }
 
   /* ============ HIDDEN ============ */
@@ -525,57 +738,667 @@
   footer {
     margin-top: 40px;
     padding-top: 22px;
-    border-top: 1px solid #1e293b;
-    color: #64748b;
+    border-top: 1px solid var(--c-border);
+    color: var(--c-text-faint);
     font-size: 11.5px;
     line-height: 1.6;
     max-width: 1100px;
   }
-  footer strong { color: #94a3b8; }
+  footer strong { color: var(--c-text-muted); }
   footer code {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
-    background: #111827;
+    background: var(--c-surface);
     padding: 2px 6px;
     border-radius: 3px;
-    color: #cbd5e1;
-    border: 1px solid #1e293b;
+    color: var(--c-text-soft);
+    border: 1px solid var(--c-border);
   }
 
+  /* ============ MOBILE LABEL DA MATRIZ (só visível em mobile) ============ */
+  .cell-macro-label { display: none; }
+
+  /* ============================================================
+     RESPONSIVO — TABLET / MOBILE
+     Quebra em 1024px (tablet), 760px (mobile padrão) e 480px (mobile pequeno).
+     ============================================================ */
+
+  /* Tablet — ajustes leves */
+  @media (max-width: 1024px) {
+    body { padding: 22px 18px 50px; }
+    .matrix {
+      grid-template-columns: 180px repeat(6, minmax(130px, 1fr));
+      min-width: 1000px;
+    }
+  }
+
+  /* Mobile padrão (≤ 760px) — matriz vira cards verticais */
   @media (max-width: 760px) {
     body { padding: 18px 14px 40px; }
-    h1 { font-size: 22px; }
-    .matrix { min-width: 900px; }
-    .project-header { grid-template-columns: 1fr; }
-    .project-header-stats { justify-content: flex-start; }
-    .stage-header { grid-template-columns: auto 1fr; }
-    .stage-progress { grid-column: 1 / -1; }
+    h1 { font-size: 22px; line-height: 1.2; }
+    .subtitle { font-size: 12.5px; }
+    .top { gap: 14px; margin-bottom: 18px; }
+    .top-left { width: 100%; }
+    .top-actions { width: 100%; }
+    .update-chip {
+      font-size: 10px;
+      padding: 6px 10px;
+    }
+    .action-btn {
+      padding: 7px 11px;
+      font-size: 11.5px;
+    }
+    .action-btn.icon-only { padding: 7px 9px; }
+
+    /* Mode toggle compacto */
+    .mode-toggle { width: 100%; margin-bottom: 18px; }
+    .mode-btn {
+      padding: 9px 12px;
+      font-size: 12px;
+      flex: 1;
+      text-align: center;
+    }
+
+    /* Legenda enxuta */
+    .legend {
+      gap: 12px 14px;
+      padding: 12px 14px;
+      font-size: 11.5px;
+    }
+    .legend-divider { display: none; }
+
+    /* ============ MATRIZ EM CARDS VERTICAIS ============ */
+    .matrix-wrap {
+      padding: 14px;
+      overflow-x: visible;
+    }
+    .matrix {
+      display: block;
+      grid-template-columns: none;
+      min-width: 0;
+    }
+    .matrix-header { display: none; }
+    .matrix-row {
+      display: block;
+      margin-bottom: 18px;
+      padding: 14px;
+      background: var(--c-surface-2);
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+    }
+    .matrix-row:last-child { margin-bottom: 0; }
+    .matrix-row-label {
+      background: transparent;
+      border: none;
+      padding: 0 0 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--c-border);
+      border-radius: 0;
+      min-height: auto;
+    }
+    .matrix-row-name { font-size: 16px; }
+    .matrix-cell {
+      margin-bottom: 8px;
+      min-height: auto;
+      padding: 12px;
+    }
+    .matrix-cell:last-child { margin-bottom: 0; }
+    .matrix-cell.current {
+      margin-top: 14px;
+    }
+    .matrix-cell.current::before {
+      top: -10px;
+    }
+    .cell-macro-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .matrix-cell.current .cell-macro-label { color: #fbbf24; }
+    .matrix-cell.future .cell-macro-label { color: var(--c-text-faint); }
+
+    .matrix-summary {
+      flex-direction: column;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    /* ============ DETAIL — projeto ============ */
+    .project-tabs { gap: 6px; }
+    .project-tab {
+      padding: 10px 14px;
+      font-size: 13px;
+      flex: 1;
+      min-width: 0;
+      justify-content: center;
+    }
+    .project-header {
+      grid-template-columns: 1fr;
+      padding: 18px 18px;
+      gap: 14px;
+    }
+    .project-header-title { font-size: 19px; }
+    .project-header-stats {
+      justify-content: flex-start;
+      gap: 24px;
+    }
+    .stat-block { text-align: left; }
+    .stat-num { font-size: 20px; }
+
+    /* Stage */
+    .stage-header {
+      grid-template-columns: auto 1fr;
+      padding: 14px 16px;
+      gap: 12px;
+    }
+    .stage-name { font-size: 15px; }
+    .stage-progress {
+      grid-column: 1 / -1;
+      margin-top: 4px;
+    }
+    .stage-current-badge {
+      display: block;
+      margin-left: 0;
+      margin-top: 4px;
+      width: fit-content;
+    }
+    .tasks-list { padding: 12px 16px 16px; }
+    .task {
+      grid-template-columns: 14px 1fr;
+      padding: 11px 13px;
+      gap: 11px;
+    }
+    .task-status-tag {
+      grid-column: 2 / 3;
+      justify-self: start;
+      margin-top: 2px;
+      margin-bottom: 0;
+    }
+    .task-name { font-size: 13.5px; }
+    .task-obs { font-size: 11.5px; padding: 7px 9px; }
+
+    /* ============ METODOLOGIA — hint de scroll ============ */
+    .methodology-section .flow-wrap {
+      padding: 16px 14px;
+      position: relative;
+    }
+    .methodology-section .flow-wrap::before {
+      content: '👆 Arraste para o lado para ver toda a metodologia';
+      display: block;
+      font-size: 11px;
+      color: #fbbf24;
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+    .methodology-section .controls { gap: 8px; }
+    .methodology-section .controls .control-btn { font-size: 11px; padding: 7px 11px; }
+    .methodology-section .legend-methodology {
+      gap: 12px 16px;
+      padding: 12px 14px;
+      font-size: 11.5px;
+    }
+    .methodology-section .legend-methodology .legend-divider { display: none; }
+    .methodology-section .guiding-principle { font-size: 13px; padding: 12px 14px; }
+    .methodology-section .recommendation-banner {
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 16px;
+    }
+    .methodology-section .recommendation-banner-icon { font-size: 20px; }
+    .methodology-section .recommendation-banner-body { font-size: 12.5px; }
+    .methodology-section .footnote { font-size: 11px; }
+
+    /* Modal */
+    .modal { width: 96%; max-height: 92vh; border-radius: 12px; }
+    .modal-header { padding: 18px 18px 14px; }
+    .modal-title { font-size: 19px; }
+    .modal-body { padding: 14px 18px 18px; }
+    .modal-close { width: 28px; height: 28px; top: 12px; right: 12px; font-size: 14px; }
+
+    /* Footer */
+    footer { font-size: 11px; padding-top: 18px; margin-top: 30px; }
+    footer code { font-size: 10px; }
   }
+
+  /* Mobile pequeno (≤ 480px) — celular comum em portrait */
+  @media (max-width: 480px) {
+    body { padding: 14px 10px 30px; }
+    h1 { font-size: 19px; }
+    .subtitle { font-size: 12px; }
+    .top-left { width: 100%; }
+    .update-chip { align-self: flex-start; }
+
+    /* Mode toggle: empilha em coluna em telas muito apertadas */
+    .mode-toggle {
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px;
+    }
+    .mode-btn {
+      width: 100%;
+      padding: 10px 12px;
+    }
+
+    .matrix-wrap { padding: 10px; }
+    .matrix-row { padding: 12px; }
+    .matrix-row-name { font-size: 15px; }
+    .matrix-cell { padding: 11px; }
+    .cell-macro-label { font-size: 10px; }
+    .cell-count { font-size: 10.5px; }
+    .cell-status-label { font-size: 9px; }
+
+    .project-tabs { flex-direction: column; }
+    .project-tab { width: 100%; }
+    .project-header-title { font-size: 17px; }
+    .project-header-stats { gap: 18px; }
+    .stat-num { font-size: 18px; }
+    .stat-label { font-size: 9px; }
+
+    .stage-name { font-size: 14.5px; }
+    .stage-sub { font-size: 11.5px; }
+    .stage-num { font-size: 11.5px; padding: 5px 8px; }
+    .task-status-tag { font-size: 9.5px; }
+
+    .legend { gap: 10px 14px; font-size: 11px; }
+    .legend-here { font-size: 9px; }
+
+    /* Topbar actions empilham no celular pequeno */
+    .top-actions { width: 100%; justify-content: flex-start; }
+    .export-menu { left: 0; right: auto; }
+  }
+
+  /* ============================================================
+     IMPRESSÃO — força tema claro independente da seleção atual,
+     esconde controles de UI, mantém só o conteúdo.
+     ============================================================ */
+  @media print {
+    :root,
+    [data-theme="light"],
+    [data-theme="dark"] {
+      --c-bg: #ffffff;
+      --c-surface: #ffffff;
+      --c-surface-2: #fafafa;
+      --c-border: #d4d4d8;
+      --c-border-2: #a1a1aa;
+      --c-border-3: #71717a;
+      --c-text-faint: #71717a;
+      --c-text-muted: #52525b;
+      --c-text-soft: #3f3f46;
+      --c-text: #27272a;
+      --c-text-strong: #18181b;
+      --c-text-strongest: #09090b;
+      --c-modal-backdrop: rgba(0,0,0,0.5);
+      --c-shadow: rgba(0,0,0,0.08);
+      color-scheme: light;
+    }
+    body { padding: 12px; }
+    .top-actions, .mode-toggle, .update-chip { display: none !important; }
+    .matrix-cell:hover, .task:hover { transform: none !important; }
+    /* Garante quebra de página razoável */
+    .matrix-row, .stage, .item-card { break-inside: avoid; }
+    /* Boot/error indicators escondidos */
+    #boot-indicator, #error-display { display: none !important; }
+  }
+
+  /* ============================================================
+     METODOLOGIA — estilos importados do metodologia_construcao_civil.html
+     Escopados sob .methodology-section para evitar conflitos.
+     ============================================================ */
+
+  .methodology-section .guiding-principle {
+    background: linear-gradient(135deg, #1e3a8a22, #7c3aed22);
+    border: 1px solid #3b82f6;
+    border-left: 4px solid #fbbf24;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--c-text-strong);
+    line-height: 1.5;
+  }
+  [data-theme="light"] .methodology-section .guiding-principle {
+    background: linear-gradient(135deg, #dbeafe, #ede9fe);
+    color: #1e293b;
+    border-color: #93c5fd;
+  }
+  [data-theme="light"] .methodology-section .guiding-principle strong {
+    color: #b45309;
+  }
+  .methodology-section .guiding-principle strong { color: #fbbf24; }
+
+  .methodology-section .controls {
+    display: flex; gap: 10px; margin-bottom: 16px;
+    align-items: center; flex-wrap: wrap;
+  }
+  .control-btn {
+    background: var(--c-border); color: var(--c-text); border: 1px solid var(--c-border-2);
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .control-btn:hover { background: var(--c-border-2); border-color: var(--c-border-3); }
+  .control-btn.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .control-btn.expand-btn { background: #064e3b; border-color: #047857; color: #d1fae5; }
+  .control-btn.expand-btn:hover { background: #047857; }
+
+  .methodology-section .legend-methodology {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    margin-bottom: 16px; padding: 14px 18px;
+    background: var(--c-surface); border-radius: 10px;
+    border: 1px solid var(--c-border);
+    align-items: center;
+  }
+  .methodology-section .legend-methodology .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--c-text-soft);
+  }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  .methodology-section .flow-wrap {
+    overflow-x: auto; overflow-y: hidden;
+    /* Mantém fundo dark sempre — o SVG da metodologia tem cores próprias
+       desenhadas para fundo escuro. Funciona como uma "figura" destacada
+       em ambos os temas. */
+    background: #111827;
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 24px; border: 1px solid #334155;
+    position: relative;
+  }
+  .methodology-section .flow-wrap::-webkit-scrollbar { height: 10px; }
+  .methodology-section .flow-wrap::-webkit-scrollbar-track { background: var(--c-bg); border-radius: 4px; }
+  .methodology-section .flow-wrap::-webkit-scrollbar-thumb { background: var(--c-border-2); border-radius: 4px; }
+  .methodology-section .flow-wrap::-webkit-scrollbar-thumb:hover { background: var(--c-border-3); }
+
+  .methodology-section svg { display: block; user-select: none; }
+
+  .phase-bar { cursor: pointer; transition: filter 0.15s; }
+  .phase-bar:hover { filter: brightness(1.2); }
+  .phase-label { fill: var(--c-text-strong); font-size: 14px; font-weight: 700; pointer-events: none; }
+  .phase-sublabel { fill: var(--c-text-soft); font-size: 11px; pointer-events: none; }
+  .phase-number { fill: #fbbf24; font-size: 11px; font-weight: 700; pointer-events: none; letter-spacing: 0.05em; }
+
+  .tool-pill { cursor: pointer; transition: filter 0.15s; }
+  .tool-pill:hover { filter: brightness(1.3); }
+  .tool-pill-label { fill: var(--c-text); font-size: 10.5px; font-weight: 500; pointer-events: none; }
+
+  .gate-marker { cursor: pointer; }
+  .gate-marker:hover circle { filter: brightness(1.3); }
+  .gate-label { fill: #fbbf24; font-size: 9px; font-weight: 700; pointer-events: none; text-anchor: middle; }
+
+  .transversal-bar { cursor: pointer; transition: filter 0.15s; }
+  .transversal-bar:hover { filter: brightness(1.2); }
+  .transversal-label { fill: var(--c-text-strong); font-size: 11px; font-weight: 600; pointer-events: none; }
+  .transversal-sublabel { fill: var(--c-text-soft); font-size: 10px; pointer-events: none; }
+
+  .section-title { fill: var(--c-text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; pointer-events: none; }
+  .lane-divider { stroke: var(--c-border); stroke-width: 1; stroke-dasharray: 3,3; }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed; pointer-events: none;
+    background: var(--c-bg); border: 1px solid var(--c-border-2);
+    padding: 12px 14px; border-radius: 8px;
+    font-size: 12px; color: var(--c-text);
+    max-width: 380px; line-height: 1.5;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+    opacity: 0; transition: opacity 0.15s;
+    z-index: 1000;
+  }
+  .tooltip.visible { opacity: 1; }
+  .tooltip-title { font-weight: 700; color: var(--c-text-strong); font-size: 13px; margin-bottom: 4px; }
+  .tooltip-meta { color: var(--c-text-muted); font-size: 11px; margin-bottom: 6px; }
+  .tooltip-desc { color: var(--c-text-soft); font-size: 12px; white-space: pre-line; }
+  .tooltip-hint { color: #fbbf24; font-size: 11px; margin-top: 6px; font-weight: 600; }
+
+  /* Modal */
+  /* ===== AJUSTES ESPECÍFICOS DO TEMA LIGHT ===== */
+  /* Banner verde de evolução contínua: legibilidade no light */
+  [data-theme="light"] .methodology-section .recommendation-banner {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981;
+  }
+  [data-theme="light"] .methodology-section .recommendation-banner-title {
+    color: #047857;
+  }
+  [data-theme="light"] .methodology-section .recommendation-banner-body {
+    color: #064e3b;
+  }
+  /* Indicadores subtis no light */
+  [data-theme="light"] .matrix-row.incorporando .matrix-cell.future {
+    background: #ffffff;
+    border-color: #cbd5e1;
+  }
+  [data-theme="light"] .update-chip-dot {
+    box-shadow: 0 0 4px #10b98199;
+  }
+  /* Botões do mode-toggle no light */
+  [data-theme="light"] .mode-btn.active {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  /* Tarefa em hover no light */
+  [data-theme="light"] .task:hover,
+  [data-theme="light"] .matrix-cell:hover,
+  [data-theme="light"] .project-tab:hover {
+    border-color: #94a3b8;
+  }
+  /* Sombras de modal no light */
+  [data-theme="light"] .modal {
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  }
+  /* Texto de obs e gate criteria — ajuste de contraste no light */
+  [data-theme="light"] .task-obs {
+    background: #f1f5f9;
+    border-left-color: #94a3b8;
+    color: #334155;
+  }
+  [data-theme="light"] .gate-criteria li {
+    color: #92400e;
+  }
+  [data-theme="light"] .gate-box {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #fbbf24;
+  }
+  [data-theme="light"] .gate-box-title {
+    color: #92400e;
+  }
+  [data-theme="light"] .principle-list li {
+    background: #f8fafc;
+    color: #334155;
+  }
+  [data-theme="light"] .principle-list li strong {
+    color: #1e293b;
+  }
+  [data-theme="light"] .item-card-placeholder {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: var(--c-modal-backdrop);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 2000;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+  .modal-backdrop.visible { display: flex; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal {
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border-2);
+    border-radius: 14px;
+    width: 95%; max-width: 780px;
+    max-height: 88vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    animation: slideUp 0.25s ease-out;
+    position: relative;
+  }
+  .modal-header { padding: 22px 24px 16px; border-bottom: 1px solid var(--c-border); }
+  .modal-context { font-size: 11px; color: var(--c-text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .modal-title { font-size: 22px; font-weight: 700; color: var(--c-text-strongest); margin: 0 0 6px; letter-spacing: -0.01em; }
+  .modal-purpose { font-size: 13px; color: var(--c-text-soft); line-height: 1.5; margin-top: 8px; }
+  .modal-body { padding: 18px 24px 22px; overflow-y: auto; flex: 1; }
+  .modal-section-title { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 10px; font-weight: 700; }
+  .modal-section-title:first-child { margin-top: 0; }
+  .modal-section-title .icon { margin-right: 6px; }
+
+  .item-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .item-card-placeholder {
+    background: var(--c-surface-2);
+    border: 1px dashed var(--c-border-2);
+    opacity: 0.75;
+  }
+  .item-card-title { font-size: 13px; font-weight: 600; color: var(--c-text-strong); margin-bottom: 4px; }
+  .item-card-desc { font-size: 12px; color: var(--c-text-soft); line-height: 1.5; }
+
+  .gate-box {
+    background: linear-gradient(135deg, #422006, #78350f44);
+    border: 1px solid #92400e;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 12px;
+  }
+  .gate-box-title { font-size: 12px; font-weight: 700; color: #fbbf24; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .gate-criteria { list-style: none; padding: 0; margin: 0; }
+  .gate-criteria li { font-size: 12px; color: #fde68a; padding: 4px 0; padding-left: 18px; position: relative; }
+  .gate-criteria li:before { content: "✓"; position: absolute; left: 0; color: #fbbf24; font-weight: 700; }
+
+  .principle-list { list-style: none; padding: 0; margin: 0; }
+  .principle-list li {
+    background: var(--c-bg);
+    border-left: 3px solid #3b82f6;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    color: var(--c-text-soft);
+    line-height: 1.5;
+    border-radius: 0 6px 6px 0;
+  }
+  .principle-list li strong { color: var(--c-text-strong); }
+
+  .modal-close {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--c-border); border: 1px solid var(--c-border-2);
+    color: var(--c-text-soft); width: 32px; height: 32px; border-radius: 8px;
+    cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .modal-close:hover { background: var(--c-border-2); color: #fff; }
+
+  .methodology-section .recommendation-banner {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #064e3b22, #047857aa);
+    border: 1px solid #047857;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .methodology-section .recommendation-banner-icon { font-size: 24px; flex-shrink: 0; }
+  .methodology-section .recommendation-banner-content { flex: 1; }
+  .methodology-section .recommendation-banner-title {
+    font-size: 13px; color: #6ee7b7; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+  }
+  .methodology-section .recommendation-banner-body {
+    color: #d1fae5; font-size: 13px; line-height: 1.55;
+  }
+
+  .methodology-section .footnote {
+    color: var(--c-text-faint); font-size: 11px; margin-top: 16px;
+    line-height: 1.55; max-width: 1100px;
+  }
+  .methodology-section .footnote strong { color: var(--c-text-soft); }
 </style>
 </head>
 <body>
 
+<!-- BOOT INDICATOR — sumirá quando o JS rodar -->
+<div id="boot-indicator" style="position:fixed;top:0;left:0;right:0;padding:14px 18px;background:#1e293b;color:#cbd5e1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;z-index:9999;border-bottom:1px solid #334155;">
+  Carregando esteira… <span style="color:#94a3b8;">(se essa mensagem não sumir em ~3s, o JavaScript não rodou)</span>
+</div>
+
+<!-- ERROR DISPLAY — só aparece se algo quebrar -->
+<div id="error-display" style="display:none;position:fixed;top:0;left:0;right:0;padding:14px 18px;background:#7f1d1d;color:#fff;font-family:-apple-system,BlinkMacSystemFont,monospace;font-size:12px;z-index:10000;border-bottom:2px solid #ef4444;white-space:pre-wrap;word-break:break-word;"></div>
+
 <div class="top">
   <div class="top-left">
-    <h1>Controle da Esteira de Produto</h1>
+    <h1>Esteira de Produto · AIC</h1>
     <p class="subtitle">
-      Instrumento de gestão de portfólio da AI Constructions. Cada produto é posicionado na esteira metodológica conforme a última tarefa conclusa e as tarefas em andamento. <strong>Atualização semanal recomendada</strong>, na reunião 1:1 com o founder.
+      Onde a metodologia encontra a operação. Navegue entre a <strong>visão geral</strong> do portfólio, o <strong>detalhe por projeto</strong> com farol de tarefas, e a <strong>metodologia</strong> que estrutura toda a esteira.
     </p>
   </div>
-  <div class="update-chip">
-    <span class="update-chip-dot"></span>
-    <span>Atualizado · 15 mai 2026</span>
+  <div class="top-actions">
+    <div class="export-wrap">
+      <button class="action-btn" id="export-btn" aria-haspopup="true" aria-expanded="false">
+        <span class="action-btn-icon">↓</span>
+        <span class="action-btn-label">Exportar</span>
+      </button>
+      <div class="export-menu" id="export-menu" hidden>
+        <button class="export-menu-item" data-export="json">
+          <span class="export-menu-icon">{ }</span>
+          <span>
+            <strong>JSON</strong>
+            <small>dados estruturados</small>
+          </span>
+        </button>
+        <button class="export-menu-item" data-export="csv">
+          <span class="export-menu-icon">⊞</span>
+          <span>
+            <strong>CSV</strong>
+            <small>abrir em Excel/Sheets</small>
+          </span>
+        </button>
+        <button class="export-menu-item" data-export="pdf">
+          <span class="export-menu-icon">⎙</span>
+          <span>
+            <strong>PDF</strong>
+            <small>imprimir/salvar</small>
+          </span>
+        </button>
+      </div>
+    </div>
+    <button class="action-btn icon-only" id="theme-toggle" title="Alternar tema">
+      <span class="action-btn-icon" id="theme-icon">☀</span>
+    </button>
+    <div class="update-chip">
+      <span class="update-chip-dot"></span>
+      <span>Atualizado · 26 mai 2026</span>
+    </div>
   </div>
 </div>
 
 <div class="mode-toggle">
   <button class="mode-btn active" id="btn-overview">Visão geral</button>
   <button class="mode-btn" id="btn-detail">Detalhe por projeto</button>
+  <button class="mode-btn" id="btn-methodology">Metodologia</button>
 </div>
 
-<div class="legend">
+<div class="legend" id="legend-portfolio">
   <div class="legend-item"><span class="legend-dot done"></span>Concluída</div>
   <div class="legend-item"><span class="legend-dot doing"></span>Em andamento</div>
+  <div class="legend-item"><span class="legend-dot partial"></span>Parcial</div>
   <div class="legend-item"><span class="legend-dot pending"></span>Pendente</div>
   <div class="legend-item"><span class="legend-dot future"></span>Fase não iniciada</div>
   <div class="legend-divider"></div>
@@ -597,95 +1420,212 @@
   <div class="pipeline" id="pipeline"></div>
 </section>
 
+<!-- ====================== METHODOLOGY MODE ====================== -->
+<section id="methodology-mode" class="methodology-section" hidden>
+
+  <div class="guiding-principle">
+    <strong>🎯 Princípio norteador:</strong> "Quando o cliente não tem dado, o produto precisa criar o dado." O MVP é o instrumento de geração de dado, não só de validação de valor. IA é o vetor de evolução, não o ponto de partida.
+  </div>
+
+  <div class="controls">
+    <button class="control-btn expand-btn" id="show-principle">📜 Princípio norteador</button>
+    <button class="control-btn expand-btn" id="show-recommendation">🔄 Evolução contínua</button>
+    <button class="control-btn active" id="toggle-transversal">Lentes transversais: visíveis</button>
+  </div>
+
+  <div class="legend-methodology">
+    <div class="legend-item"><span class="legend-swatch" style="background:#047857;"></span>Macroetapas (espinha dorsal)</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:#ea580c;"></span>Estratégia de Dados (fio condutor)</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:#7c3aed;"></span>Lentes transversais (JTBD, Behavior Design)</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:#0891b2;"></span>Camadas contínuas (Scrum/Kanban, Responsible AI)</div>
+    <div class="legend-divider" style="width:1px;background:#334155;align-self:stretch;"></div>
+    <div class="legend-item"><span style="color:#fbbf24;font-size:16px;">🔒</span> Gate de saída</div>
+    <div class="legend-item"><span style="color:#3b82f6;font-size:16px;">●</span> Ferramenta/metodologia</div>
+  </div>
+
+  <div class="flow-wrap">
+    <svg id="flow" width="1700" height="780" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="recommendation-banner">
+    <div class="recommendation-banner-icon">📝</div>
+    <div class="recommendation-banner-content">
+      <div class="recommendation-banner-title">Recomendação para evolução contínua da metodologia</div>
+      <div class="recommendation-banner-body">
+        Manter um <strong>log de atrito por projeto</strong> — registrar onde a metodologia falhou ou foi insuficiente ("nesta fase, faltou X" / "esta etapa foi confusa porque Y"). Após 2-3 projetos, esse log vira a base empírica para decidir quais complementos adotar e onde encaixá-los — customização baseada em evidência da operação, não em teoria.
+      </div>
+    </div>
+  </div>
+
+  <p class="footnote">
+    <strong>Como ler este diagrama:</strong> as caixas verdes na parte superior são as macroetapas (espinha dorsal). Os cadeados 🔒 entre elas são gates de saída que evitam retrabalho.
+    Embaixo de cada fase, os pills coloridos são as ferramentas/metodologias aplicáveis. A faixa laranja é a Estratégia de Dados, que atravessa todas as fases.
+    As faixas roxas e ciano abaixo são lentes transversais e camadas contínuas. Clique em qualquer elemento para abrir o detalhamento.
+  </p>
+</section>
+
+<!-- Tooltip global (usado pela metodologia) -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Modal global (usado pela metodologia) -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-header">
+      <div class="modal-context" id="modal-context"></div>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <div class="modal-purpose" id="modal-purpose"></div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
 <footer>
   <p><strong>Origem dos dados:</strong> base <code>MVP — Controle Esteira de Produto AIC.xlsx</code>. Para atualizar, edite a lista <code>tarefas</code> no <code>&lt;script&gt;</code> deste arquivo — uma linha por tarefa, mesmos campos da planilha. A esteira recalcula sozinha.</p>
-  <p style="margin-top: 8px;"><strong>Regra de posicionamento — macroetapa atual:</strong> última macroetapa que tem ao menos uma tarefa em andamento; se nenhuma fase tem em andamento, a última com tarefas concluídas. Macroetapas posteriores à atual aparecem translúcidas — sinalizam território ainda não pisado, não dívida.</p>
+  <p style="margin-top: 8px;"><strong>Regra de posicionamento — macroetapa atual:</strong> última macroetapa que tem ao menos uma tarefa em andamento ou parcial; se nenhuma tem progresso ativo, a última com tarefas concluídas. Macroetapas posteriores à atual aparecem translúcidas — sinalizam território ainda não pisado, não dívida.</p>
+  <p style="margin-top: 8px;"><strong>Status "Parcial":</strong> tarefa em que existe um artefato (TAP, Cumbuca, Matriz Competitiva) mas com gaps mapeados em relação ao que a metodologia pede. Não é "Pendente" porque há algo entregue, não é "Concluído" porque falta fechar. Cor azul para destacar como dívida metodológica explícita, herdada de entregas anteriores à esteira.</p>
+  <p style="margin-top: 8px;"><strong>Metodologia:</strong> a aba <em>Metodologia</em> apresenta o framework completo — macroetapas, gates, ferramentas, estratégia de dados, lentes transversais e camadas contínuas. Clique em qualquer elemento para abrir o detalhamento.</p>
 </footer>
 
 <script>
+// Captura erros globais antes de qualquer outra coisa
+window.addEventListener('error', function(e) {
+  var ed = document.getElementById('error-display');
+  if (ed) {
+    ed.style.display = 'block';
+    ed.textContent = 'Erro JS: ' + e.message + '\n  em ' + (e.filename || '?') + ':' + (e.lineno || '?');
+  }
+});
+
+/* ============================================================
+   TEMA — dark/light, persistido em localStorage
+   ============================================================ */
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('esteira_theme', t); } catch(e){}
+  var icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = (t === 'light') ? '☾' : '☀';
+}
+function initTheme() {
+  var saved = null;
+  try { saved = localStorage.getItem('esteira_theme'); } catch(e){}
+  setTheme(saved || 'dark');
+}
+initTheme();
+
+try {
 /* ============================================================
    BASE DE DADOS — extraída de MVP_Controle_Esteira_de_Produto_AIC.xlsx
    Para atualizar, edite os objetos abaixo (mesmas colunas da planilha).
    ============================================================ */
 
 const tarefas = [
-  // === EDI ===
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente', obs: 'Validar se podemos pular essa metodologia para este projeto em específico.' },
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Concluído' },
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'JTBD — Descoberta dos jobs', status: 'Em andamento', obs: 'Feito para o Gerente de Projeto na fase 5 (Desenvolvimento do Projeto). Pendente para o Dono/Owner/CEO e passível de revisão se definirmos outro recorte de escopo.' },
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Em andamento' },
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Behavior Design — observação', status: 'Em andamento', obs: 'Iniciado de forma involuntária ao participar das reuniões da DKP.' },
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'JTBD — Priorização', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Behavior Design — definição', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
-  { projeto: 'EDI', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
-
   // === DIÁRIO DE OBRA ===
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'JTBD — Descoberta dos jobs', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Behavior Design — observação', status: 'Concluído', obs: 'Estou considerando o Gemba como observação do usuário. Passível de revisão.' },
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'JTBD — Priorização', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Behavior Design — definição', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
-  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Concluído' },
-  { projeto: 'Diário de Obra', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Concluído' },
-  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Em andamento' },
-  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Em andamento' },
-  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Em andamento' },
-  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Em andamento' },
-  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Em andamento' },
-  { projeto: 'Diário de Obra', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', hierarquia: '1.1', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '1.2', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Parcial', obs: "Por similaridade: TAP v1.0 (assinado 26/01/26) lista stakeholders (Obra SPE 01, Obra SPE 08, Engenharia corporativa). Falta para fechar: segmentar 'decide / usa / paga / impacta' e separar comprador (DKP diretoria) de usuário operacional (mestres, engenheiros de campo)." },
+  { projeto: 'Diário de Obra', hierarquia: '1.3', macroetapa: 'Discovery', metodologia: 'JTBD - Descoberta dos jobs', status: 'Parcial', obs: "Cumbucas executadas em 3 datas no Drive — observação coletada mas sem documento de síntese. Falta para fechar: mapeamento das 3 dimensões (funcional, emocional, social), separação JTBD do comprador × usuário operacional, identificação de 'quem é contratado hoje' (caderneta, WhatsApp, RDO em papel)." },
+  { projeto: 'Diário de Obra', hierarquia: '1.4', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '1.5', macroetapa: 'Discovery', metodologia: 'Behavior Design - observação', status: 'Concluído', obs: 'Estou considerando o Gemba como observação do usuário. Passível de revisão.' },
+  { projeto: 'Diário de Obra', hierarquia: '1.6', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Parcial', obs: 'Matriz Competitiva entregue em 21/05/2026 (ferramenta correta da metodologia). Fora de sequência: foi feita 5 meses depois do TAP. Falta verificar: conteúdo da matriz contra checklist de gaps competitivos vinculados aos jobs.' },
+  { projeto: 'Diário de Obra', hierarquia: '1.7', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '2.1', macroetapa: 'Business Understanding', metodologia: 'JTBD - Priorização', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '2.2', macroetapa: 'Business Understanding', metodologia: 'Behavior Design - definição', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '2.3', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '2.4', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '2.5', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Parcial', obs: 'Por similaridade: TAP v1.0 tem 3 KPIs — frequência de preenchimento, tempo médio para registrar diário, número de ocorrências identificadas. Falta para fechar: distinção leading × lagging, métricas comportamentais (adoção real, frequência, persistência), baseline atual.' },
+  { projeto: 'Diário de Obra', hierarquia: '2.6', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '3.1', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '3.2', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '3.3', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'Diário de Obra', hierarquia: '3.4', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Concluído' },
+  { projeto: 'Diário de Obra', hierarquia: '3.5', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Concluído' },
+  { projeto: 'Diário de Obra', hierarquia: '4.1', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', hierarquia: '4.2', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', hierarquia: '4.3', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', hierarquia: '4.4', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', hierarquia: '4.5', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Em andamento' },
+  { projeto: 'Diário de Obra', hierarquia: '4.6', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Em andamento' },
+
+
+  // === SAC (em incorporação — vindo de parceiro externo) ===
+  { projeto: 'SAC', hierarquia: '1.1', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '1.2', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '1.3', macroetapa: 'Discovery', metodologia: 'JTBD - Descoberta dos jobs', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '1.4', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '1.5', macroetapa: 'Discovery', metodologia: 'Behavior Design - observação', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '1.6', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '1.7', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '2.1', macroetapa: 'Business Understanding', metodologia: 'JTBD - Priorização', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '2.2', macroetapa: 'Business Understanding', metodologia: 'Behavior Design - definição', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '2.3', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '2.4', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '2.5', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '2.6', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '3.1', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '3.2', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '3.3', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '3.4', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '3.5', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '4.1', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '4.2', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '4.3', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '4.4', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '4.5', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
+  { projeto: 'SAC', hierarquia: '4.6', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
 
   // === ALMOXARIFADO ===
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'JTBD — Descoberta dos jobs', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Behavior Design — observação', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'JTBD — Priorização', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Behavior Design — definição', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Em andamento' },
-  { projeto: 'Almoxarifado', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
-  { projeto: 'Almoxarifado', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '1.1', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '1.2', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Parcial', obs: "Por similaridade: TAP v2.0 (rascunho, não assinado) lista equipe e parceiros. Mesma lacuna do Diário: sem segmentação 'decide / usa / paga / impacta' e sem separar comprador (DKP diretoria) de usuário operacional (almoxarifes, encarregados)." },
+  { projeto: 'Almoxarifado', hierarquia: '1.3', macroetapa: 'Discovery', metodologia: 'JTBD - Descoberta dos jobs', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '1.4', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '1.5', macroetapa: 'Discovery', metodologia: 'Behavior Design - observação', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '1.6', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '1.7', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '2.1', macroetapa: 'Business Understanding', metodologia: 'JTBD - Priorização', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '2.2', macroetapa: 'Business Understanding', metodologia: 'Behavior Design - definição', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '2.3', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '2.4', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '2.5', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Parcial', obs: 'Por similaridade: TAP v2.0 tem KPIs em 5 categorias (Adoção, Eficiência, Qualidade, Confiabilidade, Negócio) — cobertura mais rica que o Diário. Falta para fechar: distinção explícita leading × lagging, métricas comportamentais (não só de uso), baseline atual do processo sem automação (gap apontado no próprio TAP).' },
+  { projeto: 'Almoxarifado', hierarquia: '2.6', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '3.1', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '3.2', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '3.3', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '3.4', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Em andamento' },
+  { projeto: 'Almoxarifado', hierarquia: '3.5', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Em andamento', obs: 'Lançamento 26/05/2026. Treinamento com usuários em curso (11/05/26 → 11/06/26). Primeira rodada de validação em campo acontecendo durante o treinamento.' },
+  { projeto: 'Almoxarifado', hierarquia: '4.1', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '4.2', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '4.3', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '4.4', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '4.5', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
+  { projeto: 'Almoxarifado', hierarquia: '4.6', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
+
+
+  // === EDI ===
+  { projeto: 'EDI', hierarquia: '1.1', macroetapa: 'Discovery', metodologia: 'Design Sprint', status: 'Pendente', obs: 'Validar se podemos pular essa metodologia para este projeto em específico.' },
+  { projeto: 'EDI', hierarquia: '1.2', macroetapa: 'Discovery', metodologia: 'Mapeamento de Stakeholders', status: 'Concluído' },
+  { projeto: 'EDI', hierarquia: '1.3', macroetapa: 'Discovery', metodologia: 'JTBD - Descoberta dos jobs', status: 'Em andamento', obs: 'Feito para o Gerente de Projeto na fase 5 (Desenvolvimento do Projeto). Pendente para o Dono/Owner/CEO e passível de revisão se definirmos outro recorte de escopo.' },
+  { projeto: 'EDI', hierarquia: '1.4', macroetapa: 'Discovery', metodologia: 'Painel com Especialistas', status: 'Em andamento' },
+  { projeto: 'EDI', hierarquia: '1.5', macroetapa: 'Discovery', metodologia: 'Behavior Design - observação', status: 'Em andamento', obs: 'Iniciado de forma involuntária ao participar das reuniões da DKP.' },
+  { projeto: 'EDI', hierarquia: '1.6', macroetapa: 'Discovery', metodologia: 'Estudo de Mercado e Concorrentes', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '1.7', macroetapa: 'Discovery', metodologia: 'Mapeamento das 3 camadas de ausência de dados', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '2.1', macroetapa: 'Business Understanding', metodologia: 'JTBD - Priorização', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '2.2', macroetapa: 'Business Understanding', metodologia: 'Behavior Design - definição', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '2.3', macroetapa: 'Business Understanding', metodologia: 'Workshop de Quantificação', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '2.4', macroetapa: 'Business Understanding', metodologia: 'Value Driver Tree', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '2.5', macroetapa: 'Business Understanding', metodologia: 'Definição de Métricas de Sucesso', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '2.6', macroetapa: 'Business Understanding', metodologia: 'Business Case', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '3.1', macroetapa: 'MVP', metodologia: 'IA-Readiness', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '3.2', macroetapa: 'MVP', metodologia: 'Job Stories', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '3.3', macroetapa: 'MVP', metodologia: 'Aplicação do Behavior Design', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '3.4', macroetapa: 'MVP', metodologia: 'Sub-ciclo de entrega', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '3.5', macroetapa: 'MVP', metodologia: 'Validação em campo', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '4.1', macroetapa: 'Evolução de Produto', metodologia: 'Sub-ciclo do MVP replicado', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '4.2', macroetapa: 'Evolução de Produto', metodologia: 'Refino de UX e fluxos', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '4.3', macroetapa: 'Evolução de Produto', metodologia: 'Validação em campo continuada', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '4.4', macroetapa: 'Evolução de Produto', metodologia: 'Expansão de cobertura', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '4.5', macroetapa: 'Evolução de Produto', metodologia: 'Estabilização técnica', status: 'Pendente' },
+  { projeto: 'EDI', hierarquia: '4.6', macroetapa: 'Evolução de Produto', metodologia: 'Acúmulo e qualificação contínua de dados', status: 'Pendente' },
+
 ];
 
 /* ============================================================
@@ -711,10 +1651,31 @@ const macroetapaIdByName = {
 };
 
 /* ============================================================
+   METADADOS DE PROJETO — informações por projeto
+   incorporando: true → projeto novo sendo trazido para o ambiente,
+                       todas as células ficam translúcidas (sem posição na esteira)
+   ============================================================ */
+const projetosMeta = {
+  'SAC': {
+    incorporando: true,
+    macroAtualOverride: 'mvp',
+    macrosNaoTransparentes: ['discovery', 'business'],
+    descricao: 'Projeto em incorporação — vindo de parceiro externo, posicionado em MVP enquanto o diagnóstico das fases anteriores é feito.'
+  },
+  'EDI': {
+    novoProduto: true
+  }
+};
+
+function isProjetoIncorporando(p) {
+  return !!(projetosMeta[p] && projetosMeta[p].incorporando);
+}
+
+/* ============================================================
    CÁLCULOS DERIVADOS
    ============================================================ */
 
-const STATUS = { DONE: 'Concluído', DOING: 'Em andamento', PENDING: 'Pendente' };
+const STATUS = { DONE: 'Concluído', DOING: 'Em andamento', PARTIAL: 'Parcial', PENDING: 'Pendente' };
 
 function projetos() {
   const set = [];
@@ -737,35 +1698,48 @@ function contagemFase(projeto, macroNome) {
   const ts = tarefasDaFase(projeto, macroNome);
   const done    = ts.filter(t => t.status === STATUS.DONE).length;
   const doing   = ts.filter(t => t.status === STATUS.DOING).length;
+  const partial = ts.filter(t => t.status === STATUS.PARTIAL).length;
   const pending = ts.filter(t => t.status === STATUS.PENDING).length;
-  return { total: ts.length, done, doing, pending };
+  return { total: ts.length, done, doing, partial, pending };
 }
 
 function macroetapaAtual(projeto) {
-  // Última fase com em andamento; se não houver, última com concluída.
-  let lastDoing = null;
-  let lastDone = null;
+  // Projeto em incorporação: usa override se definido; senão, sentinela.
+  if (isProjetoIncorporando(projeto)) {
+    return projetosMeta[projeto].macroAtualOverride || '__incorporando__';
+  }
+  // Sinais de "fase atual": em andamento OU parcial > concluído OU parcial > primeira fase.
+  // Parcial conta como "tocada": algo já existe ali.
+  let lastActive = null;   // em andamento ou parcial
+  let lastTouched = null;  // concluída ou parcial (qualquer sinal de progresso)
   for (const m of macroetapas) {
     const c = contagemFase(projeto, m.nome);
-    if (c.doing > 0) lastDoing = m.id;
-    if (c.done > 0)  lastDone  = m.id;
+    if (c.doing > 0 || c.partial > 0) lastActive = m.id;
+    if (c.done > 0 || c.partial > 0)  lastTouched = m.id;
   }
-  return lastDoing || lastDone || macroetapas[0].id;
+  return lastActive || lastTouched || macroetapas[0].id;
 }
 
 function statusFase(projeto, macroId) {
-  // 'done' | 'doing' | 'pending' | 'future' | 'empty'
+  // 'done' | 'doing' | 'partial' | 'pending' | 'empty'
   const m = macroetapas.find(x => x.id === macroId);
   const c = contagemFase(projeto, m.nome);
-  if (c.total === 0) return 'empty'; // não há tarefas mapeadas dessa fase para esse projeto
+  if (c.total === 0) return 'empty';
   if (c.done === c.total) return 'done';
   if (c.doing > 0) return 'doing';
-  if (c.done > 0)  return 'doing'; // parcialmente concluída, sem em andamento → tratamos como "doing"
-  return 'pending'; // tudo pendente
+  if (c.partial > 0) return 'partial';
+  if (c.done > 0) return 'doing'; // parcialmente concluída sem em andamento → tratamos como "doing"
+  return 'pending';
 }
 
 function isFutura(projeto, macroId) {
-  // É futura se está depois da macroetapa atual.
+  // Projeto em incorporação: translúcidas EXCETO (a atual) e (as listadas em macrosNaoTransparentes).
+  if (isProjetoIncorporando(projeto)) {
+    if (macroId === macroetapaAtual(projeto)) return false;
+    const naoT = projetosMeta[projeto].macrosNaoTransparentes;
+    if (naoT && naoT.includes(macroId)) return false;
+    return true;
+  }
   const atual = macroetapaAtual(projeto);
   const idxAtual = macroetapas.findIndex(m => m.id === atual);
   const idxFase  = macroetapas.findIndex(m => m.id === macroId);
@@ -778,6 +1752,7 @@ function contagemTotalProjeto(projeto) {
     total:   ts.length,
     done:    ts.filter(t => t.status === STATUS.DONE).length,
     doing:   ts.filter(t => t.status === STATUS.DOING).length,
+    partial: ts.filter(t => t.status === STATUS.PARTIAL).length,
     pending: ts.filter(t => t.status === STATUS.PENDING).length,
   };
 }
@@ -804,19 +1779,35 @@ function renderMatrix() {
   root.appendChild(header);
 
   // Project rows
+  let inseriuSeparador = false;
   for (const projeto of projetos()) {
+    // Separador discreto entre projetos pré-metodologia e novos
+    const isNovo = !!(projetosMeta[projeto] && projetosMeta[projeto].novoProduto);
+    if (isNovo && !inseriuSeparador) {
+      const sep = document.createElement('div');
+      sep.className = 'matrix-separator';
+      sep.innerHTML = '<span>após a criação da metodologia e esteira de produto</span>';
+      root.appendChild(sep);
+      inseriuSeparador = true;
+    }
+
     const atual = macroetapaAtual(projeto);
-    const macroAtualNome = macroetapas.find(m => m.id === atual).nome;
+    const incorporando = isProjetoIncorporando(projeto);
     const total = contagemTotalProjeto(projeto);
 
     const row = document.createElement('div');
     row.className = 'matrix-row';
+    if (incorporando) row.className += ' incorporando';
+
+    const metaLine = incorporando
+      ? `<span class="incorporando-tag">EM INCORPORAÇÃO</span> · em <strong>${macroetapas.find(m => m.id === atual).nome}</strong>`
+      : `${total.done}/${total.total} concluídas · em <strong>${macroetapas.find(m => m.id === atual).nome}</strong>`;
 
     row.innerHTML = `
       <div class="matrix-row-label">
         <div class="matrix-row-name">${projeto}</div>
         <div class="matrix-row-meta">
-          ${total.done}/${total.total} concluídas · em <strong>${macroAtualNome}</strong>
+          ${metaLine}
         </div>
       </div>
       ${macroetapas.map(m => renderCell(projeto, m)).join('')}
@@ -832,6 +1823,7 @@ function renderMatrix() {
       <strong>${p}:</strong>
       <span style="color:#6ee7b7;">${c.done} ✓</span> ·
       <span style="color:#fcd34d;">${c.doing} ◐</span> ·
+      <span style="color:#93c5fd;">${c.partial} ◑</span> ·
       <span style="color:#fca5a5;">${c.pending} ○</span>
       <span style="color:#475569;">de ${c.total}</span>
     </span>`;
@@ -850,31 +1842,44 @@ function renderCell(projeto, m) {
 
   if (c.total === 0) {
     return `<div class="${classes}" title="${m.nome}: sem tarefas mapeadas">
+      <div class="cell-macro-label">${m.num} · ${m.nome}</div>
       <div class="cell-status-label empty">sem tarefas mapeadas</div>
     </div>`;
   }
 
-  // Barra proporcional
+  // Barra proporcional — 4 segmentos
   const done    = c.done;
   const doing   = c.doing;
+  const partial = c.partial;
   const pending = c.pending;
 
   const segs = [];
   if (done    > 0) segs.push(`<div class="cell-bar-seg done"    style="flex:${done};"></div>`);
   if (doing   > 0) segs.push(`<div class="cell-bar-seg doing"   style="flex:${doing};"></div>`);
+  if (partial > 0) segs.push(`<div class="cell-bar-seg partial" style="flex:${partial};"></div>`);
   if (pending > 0) segs.push(`<div class="cell-bar-seg pending" style="flex:${pending};"></div>`);
 
+  // Label resumo
   let label;
-  if (futura)              label = 'fase não iniciada';
-  else if (done === c.total) label = 'fase concluída';
-  else if (doing > 0)        label = `${done}/${c.total} concluídas · ${doing} em andamento`;
-  else if (done > 0)         label = `${done}/${c.total} concluídas`;
-  else                       label = `${c.total} pendentes`;
+  if (futura) {
+    label = 'fase não iniciada';
+  } else if (done === c.total) {
+    label = 'fase concluída';
+  } else {
+    const parts = [];
+    if (done > 0)    parts.push(`${done} concluída${done>1?'s':''}`);
+    if (doing > 0)   parts.push(`${doing} em andamento`);
+    if (partial > 0) parts.push(`${partial} ${partial>1?'parciais':'parcial'}`);
+    if (pending > 0) parts.push(`${pending} pendente${pending>1?'s':''}`);
+    label = parts.join(' · ');
+  }
 
   return `<div class="${classes}" data-projeto="${projeto}" data-macro="${m.id}" title="${projeto} · ${m.nome}">
+    <div class="cell-macro-label">${m.num} · ${m.nome}</div>
     <div class="cell-counts">
       <span class="cell-count done${done===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${done}</span>
       <span class="cell-count doing${doing===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${doing}</span>
+      <span class="cell-count partial${partial===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${partial}</span>
       <span class="cell-count pending${pending===0?' cell-count-zero':''}"><span class="cell-count-dot"></span>${pending}</span>
     </div>
     <div>
@@ -896,9 +1901,14 @@ function renderProjectTabs() {
   if (!projetoSelecionado) projetoSelecionado = lista[0];
 
   root.innerHTML = lista.map(p => {
-    const atual = macroetapaAtual(p);
-    const sf = statusFase(p, atual);
-    const color = sf === 'done' ? '#10b981' : sf === 'doing' ? '#f59e0b' : '#ef4444';
+    let color;
+    if (isProjetoIncorporando(p)) {
+      color = '#64748b'; // cinza para projeto sem posição definida
+    } else {
+      const atual = macroetapaAtual(p);
+      const sf = statusFase(p, atual);
+      color = sf === 'done' ? '#10b981' : sf === 'doing' ? '#f59e0b' : sf === 'partial' ? '#3b82f6' : '#ef4444';
+    }
     return `<button class="project-tab ${p === projetoSelecionado ? 'active' : ''}" data-projeto="${p}">
       <span class="project-tab-indicator" style="background:${color};"></span>
       ${p}
@@ -915,15 +1925,23 @@ function renderProjectTabs() {
 
 function renderProjectHeader() {
   const p = projetoSelecionado;
-  const atual = macroetapaAtual(p);
-  const macroAtual = macroetapas.find(m => m.id === atual);
   const c = contagemTotalProjeto(p);
+  const incorporando = isProjetoIncorporando(p);
+
+  let posicaoHTML;
+  if (incorporando) {
+    const macroAtual = macroetapas.find(m => m.id === macroetapaAtual(p));
+    posicaoHTML = `<span class="incorporando-tag">EM INCORPORAÇÃO</span> · Posicionado em <strong>${macroAtual.nome}</strong> · ${macroAtual.sub}`;
+  } else {
+    const macroAtual = macroetapas.find(m => m.id === macroetapaAtual(p));
+    posicaoHTML = `Posicionado em <strong>${macroAtual.nome}</strong> · ${macroAtual.sub}`;
+  }
 
   document.getElementById('project-header').innerHTML = `
     <div>
       <h2 class="project-header-title">${p}</h2>
       <div class="project-header-position">
-        Posicionado em <strong>${macroAtual.nome}</strong> · ${macroAtual.sub}
+        ${posicaoHTML}
       </div>
     </div>
     <div class="project-header-stats">
@@ -936,6 +1954,10 @@ function renderProjectHeader() {
         <div class="stat-label">Em andamento</div>
       </div>
       <div class="stat-block">
+        <div class="stat-num partial">${c.partial}</div>
+        <div class="stat-label">Parciais</div>
+      </div>
+      <div class="stat-block">
         <div class="stat-num pending">${c.pending}</div>
         <div class="stat-label">Pendentes</div>
       </div>
@@ -946,6 +1968,7 @@ function renderProjectHeader() {
 function statusKey(s) {
   if (s === STATUS.DONE) return 'done';
   if (s === STATUS.DOING) return 'doing';
+  if (s === STATUS.PARTIAL) return 'partial';
   return 'pending';
 }
 
@@ -976,6 +1999,7 @@ function renderPipeline() {
           <div class="stage-progress-counts">
             <span class="done"><span class="dot done"></span>${c.done}</span>
             <span class="doing"><span class="dot doing"></span>${c.doing}</span>
+            <span class="partial"><span class="dot partial"></span>${c.partial}</span>
             <span class="pending"><span class="dot pending"></span>${c.pending}</span>
           </div>
         </div>
@@ -1007,34 +2031,155 @@ function renderDetail() {
 }
 
 /* ============================================================
-   MODE TOGGLE
+   TOPBAR — tema e exports
+   ============================================================ */
+document.getElementById('theme-toggle').addEventListener('click', function() {
+  var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  setTheme(cur === 'dark' ? 'light' : 'dark');
+});
+
+var exportBtn = document.getElementById('export-btn');
+var exportMenu = document.getElementById('export-menu');
+function closeExportMenu() {
+  exportMenu.hidden = true;
+  exportBtn.setAttribute('aria-expanded', 'false');
+}
+function openExportMenu() {
+  exportMenu.hidden = false;
+  exportBtn.setAttribute('aria-expanded', 'true');
+}
+exportBtn.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (exportMenu.hidden) openExportMenu(); else closeExportMenu();
+});
+document.addEventListener('click', function(e) {
+  if (!exportMenu.hidden && !exportMenu.contains(e.target) && e.target !== exportBtn) {
+    closeExportMenu();
+  }
+});
+
+function dataString() {
+  var d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function downloadBlob(blob, name) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function exportJSON() {
+  var data = {
+    versao: '2026-05-26',
+    geradoEm: new Date().toISOString(),
+    projetos: projetos().map(function(p) {
+      return {
+        nome: p,
+        meta: projetosMeta[p] || {},
+        macroetapaAtual: macroetapas.find(function(m) { return m.id === macroetapaAtual(p); }) ?
+          macroetapas.find(function(m) { return m.id === macroetapaAtual(p); }).nome : null,
+        contagem: contagemTotalProjeto(p),
+        tarefas: tarefasDoProjeto(p)
+      };
+    })
+  };
+  downloadBlob(
+    new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
+    'esteira_aic_' + dataString() + '.json'
+  );
+}
+
+function exportCSV() {
+  var header = ['Projeto', 'Hierarquia', 'Macroetapa', 'Metodologia', 'Status', 'Observações'];
+  function esc(v) {
+    var s = (v == null) ? '' : String(v);
+    if (/[",\n;]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  var lines = [header.map(esc).join(';')];
+  tarefas.forEach(function(t) {
+    lines.push([
+      t.projeto, t.hierarquia || '', t.macroetapa, t.metodologia, t.status, t.obs || ''
+    ].map(esc).join(';'));
+  });
+  // BOM + UTF-8 para Excel abrir com acentos
+  downloadBlob(
+    new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }),
+    'esteira_aic_' + dataString() + '.csv'
+  );
+}
+
+function exportPDF() {
+  // O @media print força tema claro automaticamente, basta chamar print()
+  window.print();
+}
+
+exportMenu.querySelectorAll('.export-menu-item').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var kind = btn.dataset.export;
+    closeExportMenu();
+    if (kind === 'json') exportJSON();
+    else if (kind === 'csv') exportCSV();
+    else if (kind === 'pdf') exportPDF();
+  });
+});
+
+/* ============================================================
+   MODE TOGGLE — 3 MODOS
    ============================================================ */
 
 const btnOverview = document.getElementById('btn-overview');
 const btnDetail = document.getElementById('btn-detail');
+const btnMethodology = document.getElementById('btn-methodology');
 const overviewMode = document.getElementById('overview-mode');
 const detailMode = document.getElementById('detail-mode');
+const methodologyMode = document.getElementById('methodology-mode');
+const legendPortfolio = document.getElementById('legend-portfolio');
 
-btnOverview.addEventListener('click', () => {
-  btnOverview.classList.add('active');
-  btnDetail.classList.remove('active');
-  overviewMode.hidden = false;
-  detailMode.hidden = true;
-});
-btnDetail.addEventListener('click', () => {
-  btnDetail.classList.add('active');
-  btnOverview.classList.remove('active');
-  detailMode.hidden = false;
+let methodologyRendered = false;
+
+function setMode(mode) {
+  // active button
+  [btnOverview, btnDetail, btnMethodology].forEach(b => b.classList.remove('active'));
+  // hide all sections
   overviewMode.hidden = true;
-  renderDetail();
-});
+  detailMode.hidden = true;
+  methodologyMode.hidden = true;
+  // legend: visível só nos modos de portfólio
+  legendPortfolio.hidden = (mode === 'methodology');
+
+  if (mode === 'overview') {
+    btnOverview.classList.add('active');
+    overviewMode.hidden = false;
+  } else if (mode === 'detail') {
+    btnDetail.classList.add('active');
+    detailMode.hidden = false;
+    renderDetail();
+  } else if (mode === 'methodology') {
+    btnMethodology.classList.add('active');
+    methodologyMode.hidden = false;
+    if (!methodologyRendered) {
+      renderMethodology();
+      methodologyRendered = true;
+    }
+  }
+}
+
+btnOverview.addEventListener('click', () => setMode('overview'));
+btnDetail.addEventListener('click', () => setMode('detail'));
+btnMethodology.addEventListener('click', () => setMode('methodology'));
 
 // Click numa célula da matriz abre o detalhe daquele projeto
 document.addEventListener('click', (e) => {
   const cell = e.target.closest('.matrix-cell[data-projeto]');
   if (cell) {
     projetoSelecionado = cell.dataset.projeto;
-    btnDetail.click();
+    setMode('detail');
   }
 });
 
@@ -1042,6 +2187,701 @@ document.addEventListener('click', (e) => {
    INIT
    ============================================================ */
 renderMatrix();
+
+// Remover boot indicator — JS rodou com sucesso
+var boot = document.getElementById('boot-indicator');
+if (boot) boot.parentNode.removeChild(boot);
+
+} catch (err) {
+  var ed = document.getElementById('error-display');
+  if (ed) {
+    ed.style.display = 'block';
+    ed.textContent = 'Erro fatal no JS:\n' + (err && err.message ? err.message : String(err)) + '\n\n' + (err && err.stack ? err.stack : '');
+  }
+  var boot2 = document.getElementById('boot-indicator');
+  if (boot2) boot2.innerHTML = '<span style="color:#fca5a5;">❌ JavaScript não rodou.</span> <span style="color:#94a3b8;">Veja a mensagem de erro acima.</span>';
+}
+</script>
+
+<!-- ====================== METODOLOGIA — JS ====================== -->
+<script>
+/* ============================================================
+   METODOLOGIA — dados e renderização (importados do
+   metodologia_construcao_civil.html)
+   ============================================================ */
+
+const phases = [
+    {
+      id: 'discovery',
+      number: '01',
+      name: 'Discovery',
+      subtitle: 'Entender problema, contexto e jobs',
+      color: '#047857',
+      purpose: 'Compreender em profundidade a dor real do cliente, processos atuais (geralmente analógicos), stakeholders e oportunidades. Mapear o que existe e o que não existe em termos de dado e comportamento.',
+      tools: [],
+      gate: { title: 'Gate 1 — Saída do Discovery', criteria: [] }
+    },
+    {
+      id: 'business',
+      number: '02',
+      name: 'Business Understanding',
+      subtitle: 'Quantificar valor, definir hipóteses',
+      color: '#047857',
+      purpose: 'Transformar o entendimento qualitativo do Discovery em hipóteses de valor quantificáveis e em critérios de sucesso mensuráveis.',
+      tools: [],
+      gate: { title: 'Gate 2 — Saída do Business Understanding', criteria: [] }
+    },
+    {
+      id: 'mvp',
+      number: '03',
+      name: 'MVP',
+      subtitle: 'Criar dado, validar valor',
+      color: '#047857',
+      purpose: 'Construir o produto mínimo que valida valor e ao mesmo tempo gera o dado necessário para a evolução. MVP não é versão pobre do produto — é instrumento de aprendizado e geração de base.',
+      tools: [],
+      gate: { title: 'Gate 3 — Saída do MVP', criteria: [] }
+    },
+    {
+      id: 'evolucao-produto',
+      number: '04a',
+      name: 'Evolução de Produto',
+      subtitle: 'Amadurecer sem IA, acumular dado',
+      color: '#0d9488',
+      purpose: 'Amadurecer o produto digital, expandir adoção e acumular dado em volume e qualidade. Esta fase pode durar bastante — IA só entra quando o dado justifica.',
+      tools: [],
+      gate: { title: 'Gate 3.5 — Saída da Evolução de Produto → entrada em Evolução com IA', criteria: [] }
+    },
+    {
+      id: 'evolucao-ia',
+      number: '04b',
+      name: 'Evolução com IA',
+      subtitle: 'Injetar inteligência sobre base consolidada',
+      color: '#0d9488',
+      purpose: 'Introduzir motores de IA sobre a base de dado consolidada. CRISP-ML(Q) entra como sub-processo aqui. A partir desta fase, novas features podem ser "com IA" ou "sem IA" e coexistem.',
+      tools: [],
+      gate: null
+    },
+    {
+      id: 'sustentacao',
+      number: '05',
+      name: 'Sustentação',
+      subtitle: 'Operação contínua',
+      color: '#0d9488',
+      purpose: 'Operação contínua do produto. Monitoramento de modelos, retreino quando degrada, evolução de features, suporte e retroalimentação para novos produtos.',
+      tools: [],
+      gate: null
+    }
+];
+
+const dataStrategy = {
+  name: 'Estratégia de Dados',
+  color: '#ea580c',
+  subtitle: 'Fio condutor que atravessa todas as fases',
+  purpose: 'A capacidade de criar, capturar, estruturar e qualificar dado em ambientes onde ele não existe é o diferencial competitivo central da empresa. Não é etapa, é disciplina contínua.',
+  activities: [
+    { phase: 'Discovery', name: 'Mapear o vazio do mercado', desc: 'Que dados existem hoje no MERCADO de construção civil? Em papel? Planilha? Cabeça do mestre? Mapeamento das 3 camadas, usando clientes-amostra como laboratório para inferir padrões setoriais.' },
+    { phase: 'Business Understanding', name: 'Desenhar o schema', desc: 'Que dado o MVP precisa gerar para viabilizar IA depois? Decidir antes de codar evita refazer base depois.' },
+    { phase: 'MVP', name: 'Instrumentar a coleta', desc: 'UX que captura dado limpo, eventos timestamped, telemetria, fotos georreferenciadas. IA-readiness no design.' },
+    { phase: 'Evolução de Produto', name: 'Acumular e qualificar', desc: 'Volume + qualidade + rotulagem. Aqui a base se consolida para sustentar modelos.' },
+    { phase: 'Evolução com IA', name: 'Modelar e validar', desc: 'Base consolidada vira insumo para os primeiros modelos. CRISP-ML(Q) opera sobre esse dado.' },
+    { phase: 'Sustentação', name: 'Operar e retroalimentar', desc: 'Dado de produção alimenta retraining e novos produtos. Fecha o ciclo.' }
+  ]
+};
+
+const transversalLenses = [
+  {
+    id: 'jtbd',
+    name: 'JTBD (Jobs to Be Done)',
+    color: '#7c3aed',
+    subtitle: 'Lente transversal — fases 01, 02 e 03',
+    purpose: 'Lente para entender que progresso o cliente está tentando fazer e que ele "contrata" o produto para realizar. Separa o JTBD do comprador (diretoria) do JTBD do usuário operacional (mestre, engenheiro de campo) — eles são diferentes e podem ser conflitantes.',
+    applications: [
+      { phase: 'Discovery', desc: 'Descoberta dos jobs (funcional, emocional, social) do comprador e do usuário operacional. Identificação de quem é "contratado" hoje para fazer o job. Mapeamento de fatores de resistência à mudança.' },
+      { phase: 'Business Understanding', desc: 'Priorização: qual job o produto vai fazer melhor? Conexão com Workshop de Quantificação: quanto custa hoje o job ser mal feito? Hipóteses de valor como hipóteses de fazer um job melhor que o concorrente atual.' },
+      { phase: 'MVP', desc: 'Cada feature responde: qual job isso ajuda a fazer melhor? Uso de Job Stories ("Quando [situação], eu quero [motivação], para que [resultado]") no lugar de user stories tradicionais.' }
+    ]
+  },
+  {
+    id: 'behavior',
+    name: 'Behavior Design',
+    color: '#7c3aed',
+    subtitle: 'Lente transversal — fases 01, 02 e 03',
+    purpose: 'Disciplina para projetar mudança comportamental, essencial em setores onde o produto precisa criar comportamentos que antes não existiam (registro de evento, captura de dado, mudança de rotina no canteiro). Base teórica: B=MAP (Fogg) — comportamento acontece quando Motivação, Ability e Prompt convergem.',
+    applications: [
+      { phase: 'Discovery', desc: 'Observação etnográfica do canteiro. Mapeamento de comportamentos atuais, fricções do ambiente, identificação de rotinas-âncora. Identificação do JTBD comportamental.' },
+      { phase: 'Business Understanding', desc: 'Definição de comportamentos-alvo críticos. Análise B=MAP para cada comportamento. Métricas comportamentais de sucesso (adoção real, frequência, persistência) — não só de uso.' },
+      { phase: 'MVP', desc: 'Aplicação dos 5 princípios práticos no canteiro: captura no momento; substituir, não adicionar; feedback imediato e visível; aceitar dado bagunçado no início; desenhar para o pior cenário do canteiro.' }
+    ]
+  }
+];
+
+const continuousLayers = [
+  {
+    id: 'scrum',
+    name: 'Scrum / Kanban',
+    color: '#0891b2',
+    subtitle: 'Camada contínua — atravessa todas as fases',
+    purpose: 'Organização do trabalho do dia a dia — sprints, backlog, cerimônias. Não é o framework de produto, mas o sistema operacional do time.',
+    notes: 'Atravessa todas as fases. Provavelmente o time já usa algum. Não é o que diferencia o produto, mas garante ritmo de entrega.'
+  },
+  {
+    id: 'pm',
+    name: 'Gestão de Projeto e Entrega',
+    color: '#0891b2',
+    subtitle: 'Camada contínua — atravessa todas as fases',
+    purpose: 'Estrutura de planejamento, controle e entrega do projeto. Complementa Scrum/Kanban (que é gestão de time) com a visão de projeto: escopo, prazo, custo, riscos e stakeholders.',
+    notes: 'Não confundir com Scrum/Kanban: aqueles cuidam do ritmo do time, esta camada cuida do projeto como um todo.',
+    tools: [
+      { name: 'PM Canvas', desc: 'Visão única do projeto em uma página: justificativa, objetivo, produto/entregáveis, requisitos, premissas, restrições, riscos, equipe, stakeholders, cronograma macro e custos.', when: 'Aplicar ao final do Discovery / início do Business Understanding.' },
+      { name: 'EAP (Estrutura Analítica do Projeto)', desc: 'Decomposição hierárquica do trabalho a ser realizado, do entregável macro até pacotes de trabalho gerenciáveis.', when: 'Aplicar no início do MVP e em cada ciclo de Evolução.' },
+      { name: 'Cronograma', desc: 'Planejamento temporal do projeto com marcos, dependências e prazos.', when: 'Aplicar a partir do início do MVP e atualizar continuamente.' },
+      { name: 'Gestão de Riscos', desc: 'Identificação, avaliação (probabilidade × impacto) e plano de mitigação de riscos.', when: 'Iniciar no Business Understanding e revisar em cada transição de fase.' }
+    ]
+  },
+  {
+    id: 'responsible-ai',
+    name: 'Responsible AI & Compliance',
+    color: '#0891b2',
+    subtitle: 'Camada contínua — atravessa todas as fases',
+    purpose: 'Vieses, segurança, regulação. Crítico quando IA toca em estrutura, segurança do trabalho ou decisão de obra.',
+    notes: 'Em construção civil, IA pode impactar decisões com consequências físicas reais. Documentar decisões éticas e de segurança protege a empresa e o cliente.'
+  }
+];
+
+/* ============================================================
+   METODOLOGIA — RENDERIZAÇÃO SVG
+   ============================================================ */
+
+const svg = document.getElementById('flow');
+const ns = 'http://www.w3.org/2000/svg';
+let showTransversal = true;
+
+function clearSVG() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+}
+
+function createEl(tag, attrs = {}) {
+  const el = document.createElementNS(ns, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    el.setAttribute(k, v);
+  }
+  return el;
+}
+
+function renderMethodology() {
+  clearSVG();
+
+  const padLeft = 30;
+  const padTop = 20;
+  const phaseWidth = 240;
+  const phaseGap = 36;
+  const phaseHeight = 84;
+  const totalWidth = padLeft + phases.length * (phaseWidth + phaseGap) + 40;
+
+  svg.setAttribute('width', totalWidth);
+
+  // Título da Camada 1
+  const t1 = createEl('text', { x: padLeft, y: padTop + 6, class: 'section-title' });
+  t1.textContent = '◆ MACROETAPAS (ESPINHA DORSAL — LEAN PRODUCT)';
+  svg.appendChild(t1);
+
+  // Foco atual / Horizonte futuro
+  const focoAtualX = padLeft;
+  const focoAtualEndX = padLeft + 4 * (phaseWidth + phaseGap) - phaseGap;
+  const focoAtualMidX = focoAtualX + (focoAtualEndX - focoAtualX) / 2;
+  const labelFoco = createEl('text', {
+    x: focoAtualMidX, y: padTop + 22,
+    'text-anchor': 'middle', fill: '#fbbf24',
+    'font-size': '10', 'font-weight': '700', 'letter-spacing': '0.1em', 'pointer-events': 'none'
+  });
+  labelFoco.textContent = '◆ FOCO ATUAL';
+  svg.appendChild(labelFoco);
+
+  const futuroStartX = padLeft + 4 * (phaseWidth + phaseGap);
+  const futuroEndX = padLeft + 6 * (phaseWidth + phaseGap) - phaseGap;
+  const futuroMidX = futuroStartX + (futuroEndX - futuroStartX) / 2;
+  const labelFuturo = createEl('text', {
+    x: futuroMidX, y: padTop + 22,
+    'text-anchor': 'middle', fill: '#64748b',
+    'font-size': '10', 'font-weight': '700', 'letter-spacing': '0.1em', 'pointer-events': 'none'
+  });
+  labelFuturo.textContent = '◆ HORIZONTE FUTURO (~12 MESES)';
+  svg.appendChild(labelFuturo);
+
+  // Macroetapas
+  const phaseY = padTop + 38;
+  phases.forEach((ph, idx) => {
+    const x = padLeft + idx * (phaseWidth + phaseGap);
+
+    const rect = createEl('rect', {
+      x: x, y: phaseY, width: phaseWidth, height: phaseHeight,
+      fill: ph.color, rx: 8, class: 'phase-bar'
+    });
+    rect.dataset.phaseId = ph.id;
+    rect.addEventListener('mousemove', (e) => showTooltip(e, `<div class="tooltip-title">${ph.name}</div><div class="tooltip-meta">Macroetapa ${ph.number}</div><div class="tooltip-desc">${ph.subtitle}</div><div class="tooltip-hint">Clique para ver detalhes</div>`));
+    rect.addEventListener('mouseleave', hideTooltip);
+    rect.addEventListener('click', () => openPhaseModal(ph));
+    svg.appendChild(rect);
+
+    const num = createEl('text', { x: x + 12, y: phaseY + 18, class: 'phase-number' });
+    num.textContent = ph.number;
+    svg.appendChild(num);
+
+    const name = createEl('text', { x: x + 12, y: phaseY + 40, class: 'phase-label' });
+    name.textContent = ph.name;
+    svg.appendChild(name);
+
+    // Subtítulo com quebra de linha
+    const maxCharsPerLine = 30;
+    const subtitleText = ph.subtitle;
+    let line1 = subtitleText;
+    let line2 = '';
+    if (subtitleText.length > maxCharsPerLine) {
+      let breakAt = subtitleText.lastIndexOf(' ', maxCharsPerLine);
+      if (breakAt === -1) breakAt = maxCharsPerLine;
+      line1 = subtitleText.substring(0, breakAt);
+      line2 = subtitleText.substring(breakAt + 1);
+    }
+    const sub = createEl('text', { x: x + 12, y: phaseY + 58, class: 'phase-sublabel' });
+    sub.textContent = line1;
+    svg.appendChild(sub);
+    if (line2) {
+      const sub2 = createEl('text', { x: x + 12, y: phaseY + 72, class: 'phase-sublabel' });
+      sub2.textContent = line2;
+      svg.appendChild(sub2);
+    }
+
+    // Seta para próxima fase + gate
+    if (idx < phases.length - 1) {
+      const arrowY = phaseY + phaseHeight / 2;
+      const hasGate = ph.gate;
+      const gateRadius = 14;
+      const gateCenterX = x + phaseWidth + phaseGap / 2;
+
+      if (hasGate) {
+        const arrow1 = createEl('path', {
+          d: `M ${x + phaseWidth + 2} ${arrowY} L ${gateCenterX - gateRadius - 2} ${arrowY}`,
+          stroke: '#64748b', 'stroke-width': '2', fill: 'none'
+        });
+        svg.appendChild(arrow1);
+        const arrow2 = createEl('path', {
+          d: `M ${gateCenterX + gateRadius + 2} ${arrowY} L ${x + phaseWidth + phaseGap - 2} ${arrowY}`,
+          stroke: '#64748b', 'stroke-width': '2', fill: 'none', 'marker-end': 'url(#arrowhead)'
+        });
+        svg.appendChild(arrow2);
+      } else {
+        const arrow = createEl('path', {
+          d: `M ${x + phaseWidth + 2} ${arrowY} L ${x + phaseWidth + phaseGap - 2} ${arrowY}`,
+          stroke: '#64748b', 'stroke-width': '2', fill: 'none', 'marker-end': 'url(#arrowhead)'
+        });
+        svg.appendChild(arrow);
+      }
+
+      if (ph.gate) {
+        const gateX = gateCenterX;
+        const gateY = arrowY;
+        const gateGroup = createEl('g', { class: 'gate-marker' });
+        gateGroup.style.cursor = 'pointer';
+
+        const gateCircle = createEl('circle', {
+          cx: gateX, cy: gateY, r: 14,
+          fill: '#422006', stroke: '#fbbf24', 'stroke-width': '2'
+        });
+        gateGroup.appendChild(gateCircle);
+
+        const gateIcon = createEl('text', {
+          x: gateX, y: gateY + 4,
+          'text-anchor': 'middle', 'font-size': '13', 'pointer-events': 'none'
+        });
+        gateIcon.textContent = '🔒';
+        gateGroup.appendChild(gateIcon);
+
+        const gateLabel = createEl('text', {
+          x: gateX, y: gateY + 28, class: 'gate-label'
+        });
+        gateLabel.textContent = `Gate ${idx + 1}${ph.id === 'evolucao-produto' ? '.5' : ''}`;
+        svg.appendChild(gateLabel);
+
+        gateGroup.addEventListener('mousemove', (e) => showTooltip(e, `<div class="tooltip-title">🔒 ${ph.gate.title}</div><div class="tooltip-desc">Checkpoint leve, não burocrático. Garante alinhamento e evita retrabalho entre fases.</div><div class="tooltip-hint">Clique para ver os critérios de saída</div>`));
+        gateGroup.addEventListener('mouseleave', hideTooltip);
+        gateGroup.addEventListener('click', () => openGateModal(ph));
+        svg.appendChild(gateGroup);
+      }
+    }
+  });
+
+  // Arrowhead marker
+  const defs = createEl('defs');
+  const marker = createEl('marker', {
+    id: 'arrowhead', viewBox: '0 0 10 10',
+    refX: '9', refY: '5', markerWidth: '6', markerHeight: '6',
+    orient: 'auto-start-reverse'
+  });
+  const markerPath = createEl('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill: '#64748b' });
+  marker.appendChild(markerPath);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  // Faixa de Estratégia de Dados
+  const dataStratY = phaseY + phaseHeight + 50;
+  const t3 = createEl('text', { x: padLeft, y: dataStratY - 22, class: 'section-title' });
+  t3.textContent = '◆ FIO CONDUTOR';
+  svg.appendChild(t3);
+
+  const dataStratHeight = 80;
+  const dataStratRect = createEl('rect', {
+    x: padLeft, y: dataStratY,
+    width: totalWidth - padLeft - 40, height: dataStratHeight,
+    fill: '#ea580c', opacity: '0.92', rx: 8, class: 'transversal-bar'
+  });
+  dataStratRect.addEventListener('mousemove', (e) => showTooltip(e, `<div class="tooltip-title">🔑 ${dataStrategy.name}</div><div class="tooltip-desc">${dataStrategy.purpose}</div><div class="tooltip-hint">Clique para ver atividades por fase</div>`));
+  dataStratRect.addEventListener('mouseleave', hideTooltip);
+  dataStratRect.addEventListener('click', () => openDataStrategyModal());
+  svg.appendChild(dataStratRect);
+
+  phases.forEach((ph, idx) => {
+    const x = padLeft + idx * (phaseWidth + phaseGap);
+    const activity = dataStrategy.activities[idx];
+    if (!activity) return;
+
+    const colName = createEl('text', {
+      x: x + phaseWidth / 2, y: dataStratY + 22,
+      'text-anchor': 'middle', fill: '#fff7ed',
+      'font-size': '11', 'font-weight': '700', 'pointer-events': 'none'
+    });
+    colName.textContent = activity.name;
+    svg.appendChild(colName);
+
+    const descMaxChars = 32;
+    const descText = activity.desc;
+    let dLine1 = descText, dLine2 = '';
+    if (descText.length > descMaxChars) {
+      let breakAt = descText.lastIndexOf(' ', descMaxChars);
+      if (breakAt === -1) breakAt = descMaxChars;
+      dLine1 = descText.substring(0, breakAt);
+      dLine2 = descText.substring(breakAt + 1);
+      if (dLine2.length > descMaxChars) {
+        let breakAt2 = dLine2.lastIndexOf(' ', descMaxChars);
+        if (breakAt2 === -1) breakAt2 = descMaxChars - 1;
+        dLine2 = dLine2.substring(0, breakAt2) + '…';
+      }
+    }
+    const colDesc = createEl('text', {
+      x: x + phaseWidth / 2, y: dataStratY + 44,
+      'text-anchor': 'middle', fill: '#fed7aa',
+      'font-size': '9.5', 'pointer-events': 'none'
+    });
+    colDesc.textContent = dLine1;
+    svg.appendChild(colDesc);
+    if (dLine2) {
+      const colDesc2 = createEl('text', {
+        x: x + phaseWidth / 2, y: dataStratY + 58,
+        'text-anchor': 'middle', fill: '#fed7aa',
+        'font-size': '9.5', 'pointer-events': 'none'
+      });
+      colDesc2.textContent = dLine2;
+      svg.appendChild(colDesc2);
+    }
+
+    if (idx > 0) {
+      const divider = createEl('line', {
+        x1: x - phaseGap / 2, y1: dataStratY + 8,
+        x2: x - phaseGap / 2, y2: dataStratY + dataStratHeight - 8,
+        stroke: '#fdba74', 'stroke-width': '1', opacity: '0.4'
+      });
+      svg.appendChild(divider);
+    }
+  });
+
+  const dataStratIcon = createEl('text', {
+    x: padLeft + 12, y: dataStratY - 6,
+    fill: '#fb923c', 'font-size': '11', 'font-weight': '700'
+  });
+  dataStratIcon.textContent = '🔑 Estratégia de Dados (atravessa todas as fases)';
+  svg.appendChild(dataStratIcon);
+
+  // Lentes transversais
+  let nextY = dataStratY + dataStratHeight + 44;
+  if (showTransversal) {
+    const t4 = createEl('text', { x: padLeft, y: nextY - 14, class: 'section-title' });
+    t4.textContent = '◆ LENTES TRANSVERSAIS';
+    svg.appendChild(t4);
+
+    transversalLenses.forEach((lens, lensIdx) => {
+      const lensWidth = padLeft + 3 * (phaseWidth + phaseGap) - padLeft - 8;
+      const lensY = nextY + lensIdx * 50;
+      const lensRect = createEl('rect', {
+        x: padLeft, y: lensY, width: lensWidth, height: 42,
+        fill: lens.color, opacity: '0.88', rx: 8, class: 'transversal-bar'
+      });
+      lensRect.addEventListener('mousemove', (e) => showTooltip(e, `<div class="tooltip-title">${lens.name}</div><div class="tooltip-desc">${lens.purpose.substring(0, 200)}…</div><div class="tooltip-hint">Clique para ver aplicação por fase</div>`));
+      lensRect.addEventListener('mouseleave', hideTooltip);
+      lensRect.addEventListener('click', () => openLensModal(lens));
+      svg.appendChild(lensRect);
+
+      const lensIcon = createEl('text', {
+        x: padLeft + 14, y: lensY + 26,
+        fill: '#fff', 'font-size': '14', 'pointer-events': 'none'
+      });
+      lensIcon.textContent = lensIdx === 0 ? '🎯' : '🧠';
+      svg.appendChild(lensIcon);
+
+      const lensName = createEl('text', { x: padLeft + 38, y: lensY + 20, class: 'transversal-label' });
+      lensName.textContent = lens.name;
+      svg.appendChild(lensName);
+
+      const lensSubtitle = createEl('text', { x: padLeft + 38, y: lensY + 35, class: 'transversal-sublabel' });
+      lensSubtitle.textContent = 'Aplicada nas fases 01, 02 e 03 (Discovery → MVP)';
+      svg.appendChild(lensSubtitle);
+    });
+    nextY += transversalLenses.length * 50 + 16;
+  }
+
+  // Camadas contínuas
+  nextY += 14;
+  const t5 = createEl('text', { x: padLeft, y: nextY - 14, class: 'section-title' });
+  t5.textContent = '◆ CAMADAS CONTÍNUAS (TODAS AS FASES)';
+  svg.appendChild(t5);
+
+  continuousLayers.forEach((layer, layerIdx) => {
+    const layerY = nextY + layerIdx * 42;
+    const layerRect = createEl('rect', {
+      x: padLeft, y: layerY,
+      width: totalWidth - padLeft - 40, height: 34,
+      fill: layer.color, opacity: '0.85', rx: 8, class: 'transversal-bar'
+    });
+    layerRect.addEventListener('mousemove', (e) => showTooltip(e, `<div class="tooltip-title">${layer.name}</div><div class="tooltip-desc">${layer.purpose}</div><div class="tooltip-hint">Clique para detalhes</div>`));
+    layerRect.addEventListener('mouseleave', hideTooltip);
+    layerRect.addEventListener('click', () => openContinuousLayerModal(layer));
+    svg.appendChild(layerRect);
+
+    const layerIcon = createEl('text', {
+      x: padLeft + 14, y: layerY + 22,
+      fill: '#fff', 'font-size': '13', 'pointer-events': 'none'
+    });
+    const icons = ['⚙️', '📋', '🛡️'];
+    layerIcon.textContent = icons[layerIdx] || '🔹';
+    svg.appendChild(layerIcon);
+
+    const layerName = createEl('text', { x: padLeft + 38, y: layerY + 22, class: 'transversal-label' });
+    layerName.textContent = layer.name;
+    svg.appendChild(layerName);
+  });
+
+  const finalHeight = nextY + continuousLayers.length * 42 + 30;
+  svg.setAttribute('height', finalHeight);
+}
+
+/* ============================================================
+   METODOLOGIA — TOOLTIP
+   ============================================================ */
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(e, html) {
+  tooltip.innerHTML = html;
+  tooltip.classList.add('visible');
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  let x = e.clientX + 14;
+  let y = e.clientY + 14;
+  if (x + tw > window.innerWidth - 20) x = e.clientX - tw - 14;
+  if (y + th > window.innerHeight - 20) y = e.clientY - th - 14;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+function hideTooltip() { tooltip.classList.remove('visible'); }
+
+/* ============================================================
+   METODOLOGIA — MODAL
+   ============================================================ */
+
+const modalBackdrop = document.getElementById('modal-backdrop');
+const modalContext = document.getElementById('modal-context');
+const modalTitle = document.getElementById('modal-title');
+const modalPurpose = document.getElementById('modal-purpose');
+const modalBody = document.getElementById('modal-body');
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+function closeModal() { modalBackdrop.classList.remove('visible'); }
+
+function openPhaseModal(ph) {
+  modalContext.textContent = `Macroetapa ${ph.number}`;
+  modalTitle.textContent = ph.name;
+  modalPurpose.textContent = ph.purpose;
+
+  let html = '';
+  if (ph.tools && ph.tools.length) {
+    html += '<div class="modal-section-title"><span class="icon">🛠️</span>Metodologias e ferramentas</div>';
+    ph.tools.forEach(tool => {
+      html += `<div class="item-card">
+        <div class="item-card-title">${tool.name}</div>
+        <div class="item-card-desc">${tool.desc || ''}</div>
+      </div>`;
+    });
+  } else {
+    html += '<div class="modal-section-title"><span class="icon">📌</span>Sobre esta fase</div>';
+    html += `<div class="item-card"><div class="item-card-desc">A lista completa de ferramentas desta fase está no documento original da metodologia. Esta visão é a esquemática para apoiar a navegação da esteira.</div></div>`;
+  }
+
+  if (ph.gate) {
+    html += `<div class="modal-section-title"><span class="icon">🔒</span>Gate de saída</div>`;
+    html += `<div class="gate-box">
+      <div class="gate-box-title">🔒 ${ph.gate.title}</div>`;
+    if (ph.gate.criteria && ph.gate.criteria.length) {
+      html += '<ul class="gate-criteria">';
+      ph.gate.criteria.forEach(c => { html += `<li>${c}</li>`; });
+      html += '</ul>';
+    } else {
+      html += `<div style="font-size:12px;color:#fde68a;font-style:italic;">Critérios detalhados na metodologia completa.</div>`;
+    }
+    html += `</div>`;
+    html += `<p style="font-size:11px;color:#94a3b8;margin-top:10px;line-height:1.5;font-style:italic;">Gate é checkpoint leve, não burocracia. Se um critério não está claro, voltar à fase para fechar — nunca preencher mais documento só por preencher.</p>`;
+  } else {
+    html += `<div class="modal-section-title"><span class="icon">🔄</span>Sem gate de saída</div>`;
+    html += `<p style="font-size:12px;color:#94a3b8;line-height:1.5;">Esta é fase contínua. Não há gate de saída — o ciclo retroalimenta novos produtos e iterações.</p>`;
+  }
+
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+function openGateModal(ph) {
+  if (!ph.gate) return;
+  modalContext.textContent = `Gate de saída · ${ph.name}`;
+  modalTitle.textContent = `🔒 ${ph.gate.title}`;
+  modalPurpose.textContent = 'Checkpoint leve, não burocracia. Garante alinhamento e evita retrabalho na transição entre fases.';
+
+  let html = '<div class="modal-section-title"><span class="icon">✓</span>Critérios de saída</div>';
+  html += `<div class="gate-box">`;
+  if (ph.gate.criteria && ph.gate.criteria.length) {
+    html += '<ul class="gate-criteria">';
+    ph.gate.criteria.forEach(c => { html += `<li>${c}</li>`; });
+    html += '</ul>';
+  } else {
+    html += `<div style="font-size:12px;color:#fde68a;font-style:italic;">Critérios detalhados na metodologia completa.</div>`;
+  }
+  html += `</div>`;
+  html += '<div class="modal-section-title"><span class="icon">📌</span>Princípio</div>';
+  html += `<div class="item-card"><div class="item-card-desc">Se um critério não está claro ou o artefato não existe, o gate não passa — mas a resposta nunca é "preencher mais documento". É voltar à fase para fechar o que faltou. Gate é instrumento de qualidade, não de papelada.</div></div>`;
+
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+function openDataStrategyModal() {
+  modalContext.textContent = '🔑 Fio condutor';
+  modalTitle.textContent = dataStrategy.name;
+  modalPurpose.textContent = dataStrategy.purpose;
+
+  let html = '<div class="modal-section-title"><span class="icon">📊</span>Atividades por fase</div>';
+  dataStrategy.activities.forEach(act => {
+    html += `<div class="item-card">
+      <div class="item-card-title">${act.phase} — ${act.name}</div>
+      <div class="item-card-desc">${act.desc}</div>
+    </div>`;
+  });
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+function openLensModal(lens) {
+  modalContext.textContent = '🔍 Lente transversal';
+  modalTitle.textContent = lens.name;
+  modalPurpose.textContent = lens.purpose;
+
+  let html = '<div class="modal-section-title"><span class="icon">🎯</span>Aplicação por fase</div>';
+  lens.applications.forEach(app => {
+    html += `<div class="item-card">
+      <div class="item-card-title">${app.phase}</div>
+      <div class="item-card-desc">${app.desc}</div>
+    </div>`;
+  });
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+function openContinuousLayerModal(layer) {
+  modalContext.textContent = '⚙️ Camada contínua';
+  modalTitle.textContent = layer.name;
+  modalPurpose.textContent = layer.purpose;
+
+  let html = '<div class="modal-section-title"><span class="icon">📌</span>Observação</div>';
+  html += `<div class="item-card"><div class="item-card-desc">${layer.notes}</div></div>`;
+
+  if (layer.tools && layer.tools.length) {
+    html += '<div class="modal-section-title"><span class="icon">🛠️</span>Ferramentas principais</div>';
+    layer.tools.forEach(t => {
+      html += `<div class="item-card">
+        <div class="item-card-title">${t.name}</div>
+        <div class="item-card-desc">${t.desc}</div>
+        <div class="item-card-desc" style="margin-top:6px;color:#94a3b8;font-style:italic;font-size:11.5px;"><strong style="color:#cbd5e1;">Quando aplicar:</strong> ${t.when}</div>
+      </div>`;
+    });
+  }
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+function openPrincipleModal() {
+  modalContext.textContent = '🎯 Fundamento da metodologia';
+  modalTitle.textContent = 'Princípio norteador';
+  modalPurpose.textContent = '"Quando o cliente não tem dado, o produto precisa criar o dado." Este é o princípio que reconfigura todas as decisões da metodologia.';
+
+  let html = '<div class="modal-section-title"><span class="icon">📌</span>Decorrências práticas</div>';
+  html += `<ul class="principle-list">
+    <li><strong>MVP é instrumento de geração de dado</strong>, não só de validação de valor.</li>
+    <li><strong>Cada MVP precisa ter "IA-readiness" no design</strong> desde o início — instrumentação e schema pensados para o que será necessário em 12-18 meses.</li>
+    <li><strong>Estratégia de Dados é fio condutor</strong> de todas as fases, não etapa isolada.</li>
+    <li><strong>IA é vetor de evolução, não ponto de partida</strong> — entra quando o dado acumulado justifica.</li>
+    <li><strong>Discovery mapeia 3 camadas de ausência de dado:</strong> dados não gerados / dados manuais / dados em sistema mas inacessíveis. Cada camada exige estratégia diferente.</li>
+    <li><strong>Conversa comercial honesta:</strong> não vender IA logo de cara para cliente sem dado. Vender digitalização com promessa de IA na evolução, e ser explícito sobre o tempo necessário para acumular dado.</li>
+  </ul>`;
+
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+function openRecommendationModal() {
+  modalContext.textContent = '🔄 Recomendação';
+  modalTitle.textContent = 'Evolução contínua da metodologia';
+  modalPurpose.textContent = 'A metodologia não nasce pronta. Ela se refina conforme a operação roda projetos reais.';
+
+  let html = '<div class="modal-section-title"><span class="icon">📝</span>Log de atrito por projeto</div>';
+  html += `<div class="item-card">
+    <div class="item-card-desc">
+      Documentar, em cada projeto, onde a metodologia falhou ou foi insuficiente. Formato sugerido:<br><br>
+      • "Nesta fase, faltou X"<br>
+      • "Esta etapa foi confusa porque Y"<br>
+      • "Esperávamos Z, mas aconteceu W"<br><br>
+      Após 2-3 projetos rodados, esse log vira o mapa de quais complementos adotar e onde encaixá-los — customização baseada em evidência da operação real, não em teoria.
+    </div>
+  </div>`;
+  html += '<div class="modal-section-title"><span class="icon">⚠️</span>Princípio</div>';
+  html += `<div class="item-card">
+    <div class="item-card-desc">
+      Não tentar dominar e integrar várias metodologias antes de começar. Escolher uma espinha dorsal (esta), rodar projetos reais, identificar gargalos concretos e evoluir a partir disso. É a forma mais pragmática de construir uma metodologia que de fato funciona para a operação.
+    </div>
+  </div>`;
+
+  modalBody.innerHTML = html;
+  modalBackdrop.classList.add('visible');
+}
+
+/* ============================================================
+   METODOLOGIA — CONTROLES
+   ============================================================ */
+
+document.getElementById('show-principle').addEventListener('click', openPrincipleModal);
+document.getElementById('show-recommendation').addEventListener('click', openRecommendationModal);
+document.getElementById('toggle-transversal').addEventListener('click', (e) => {
+  showTransversal = !showTransversal;
+  e.target.textContent = `Lentes transversais: ${showTransversal ? 'visíveis' : 'ocultas'}`;
+  e.target.classList.toggle('active', showTransversal);
+  if (methodologyRendered) renderMethodology();
+});
 </script>
 
 </body>
