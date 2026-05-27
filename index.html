@@ -1513,6 +1513,12 @@ function initTheme() {
 }
 initTheme();
 
+// Estado compartilhado entre os dois blocos <script>. Precisa ficar AQUI, no
+// topo do script (fora do try abaixo): um `let` dentro do try fica preso ao
+// escopo do bloco e o 2º <script> não o enxerga — era a causa do
+// "ReferenceError: methodologyRendered is not defined".
+var methodologyRendered = false;
+
 try {
 /* ============================================================
    BASE DE DADOS — extraída de MVP_Controle_Esteira_de_Produto_AIC.xlsx
@@ -2141,7 +2147,8 @@ const detailMode = document.getElementById('detail-mode');
 const methodologyMode = document.getElementById('methodology-mode');
 const legendPortfolio = document.getElementById('legend-portfolio');
 
-let methodologyRendered = false;
+// methodologyRendered é declarado no topo do script (fora do try) para ser
+// compartilhado com o 2º bloco <script>.
 
 function setMode(mode) {
   // active button
